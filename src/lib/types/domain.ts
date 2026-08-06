@@ -6,3 +6,5 @@ export type Transaction = Database["public"]["Tables"]["transactions"]["Row"];
 export type TransactionWithCategory = Transaction & {
   category: Pick<Category, "id" | "name" | "color" | "kind"> | null;
 };
+
+export type Asset = Database["public"]["Tables"]["assets"]["Row"];

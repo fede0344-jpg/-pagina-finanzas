@@ -70,11 +70,16 @@ export function buildDashboardData(
     gastos: monthlyTotals.get(key)!.expense,
   }));
 
+  const savings = incomeThisMonth - expenseThisMonth;
+  const savingsRate =
+    incomeThisMonth > 0 ? (savings / incomeThisMonth) * 100 : null;
+
   return {
     balance,
     incomeThisMonth,
     expenseThisMonth,
-    savings: incomeThisMonth - expenseThisMonth,
+    savings,
+    savingsRate,
     expenseByCategory: expenseByCategoryList,
     monthlyTrend,
   };

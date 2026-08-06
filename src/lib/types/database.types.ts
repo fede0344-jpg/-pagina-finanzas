@@ -1,4 +1,6 @@
 export type MoneyFlow = "income" | "expense";
+export type RiskLevel = "bajo" | "medio" | "alto";
+export type AssetType = "crypto" | "cedear" | "accion_arg" | "bono_arg";
 
 export interface Database {
   public: {
@@ -76,6 +78,36 @@ export interface Database {
             referencedColumns: ["id"];
           },
         ];
+      };
+      assets: {
+        Row: {
+          id: string;
+          user_id: string;
+          name: string;
+          asset_type: AssetType;
+          symbol: string;
+          risk_level: RiskLevel;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          name: string;
+          asset_type: AssetType;
+          symbol: string;
+          risk_level: RiskLevel;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          name?: string;
+          asset_type?: AssetType;
+          symbol?: string;
+          risk_level?: RiskLevel;
+          created_at?: string;
+        };
+        Relationships: [];
       };
     };
     Views: Record<string, never>;

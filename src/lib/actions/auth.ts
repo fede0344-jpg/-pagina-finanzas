@@ -50,7 +50,7 @@ export async function signUp(
   const { error } = await supabase.auth.signUp({
     email,
     password,
-    options: { emailRedirectTo: `${origin}/dashboard` },
+    options: { emailRedirectTo: `${origin}/auth/confirmed` },
   });
 
   if (error) {

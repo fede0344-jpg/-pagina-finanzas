@@ -7,6 +7,15 @@ export function formatCurrency(amount: number): string {
   return currencyFormatter.format(amount);
 }
 
+const arsFormatter = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "ARS",
+});
+
+export function formatARS(amount: number): string {
+  return arsFormatter.format(amount);
+}
+
 const dateFormatter = new Intl.DateTimeFormat("es-AR", {
   day: "2-digit",
   month: "2-digit",

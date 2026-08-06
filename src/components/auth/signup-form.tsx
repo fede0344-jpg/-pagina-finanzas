@@ -44,9 +44,10 @@ export function SignupForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Creá tu cuenta</CardTitle>
+        <CardTitle className="text-xl">Creá tu cuenta gratis</CardTitle>
         <CardDescription>
-          Empezá a organizar tus ingresos y gastos gratis.
+          Organizá tus finanzas y seguí tus inversiones en menos de un
+          minuto.
         </CardDescription>
       </CardHeader>
       <CardContent>
@@ -82,6 +83,17 @@ export function SignupForm() {
           ) : null}
           <SubmitButton />
         </form>
+        <p className="mt-3 text-center text-xs text-muted-foreground">
+          Al crear una cuenta aceptás los{" "}
+          <Link href="/terminos" className="underline">
+            Términos
+          </Link>{" "}
+          y la{" "}
+          <Link href="/privacidad" className="underline">
+            Política de Privacidad
+          </Link>
+          .
+        </p>
         <p className="mt-4 text-center text-sm text-muted-foreground">
           ¿Ya tenés cuenta?{" "}
           <Link href="/login" className="text-primary underline">

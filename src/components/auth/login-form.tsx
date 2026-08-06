@@ -30,9 +30,9 @@ export function LoginForm({ next }: { next?: string }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Iniciá sesión</CardTitle>
+        <CardTitle className="text-xl">Bienvenido de nuevo</CardTitle>
         <CardDescription>
-          Accedé a tu resumen de ingresos y gastos.
+          Iniciá sesión para ver tu resumen financiero.
         </CardDescription>
       </CardHeader>
       <CardContent>

@@ -24,8 +24,7 @@ const FEATURES = [
     icon: TrendingUp,
     title: "Inversiones",
     description:
-      "Próximamente: organizá inversiones por nivel de riesgo y simulá rendimientos.",
-    comingSoon: true,
+      "Seguí cripto, CEDEARs, acciones y bonos por nivel de riesgo, con precio y rendimiento automáticos.",
   },
 ];
 
@@ -34,13 +33,8 @@ export function FeaturesSection() {
     <section className="mx-auto max-w-5xl px-4 py-16">
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         {FEATURES.map((feature) => (
-          <Card key={feature.title} className="relative">
+          <Card key={feature.title}>
             <CardContent className="flex flex-col gap-3">
-              {feature.comingSoon ? (
-                <span className="absolute top-4 right-4 rounded-full bg-muted px-2 py-0.5 text-[10px] font-medium text-muted-foreground">
-                  Próximamente
-                </span>
-              ) : null}
               <div className="flex size-9 items-center justify-center rounded-md bg-primary/10">
                 <feature.icon className="size-4.5 text-primary" />
               </div>

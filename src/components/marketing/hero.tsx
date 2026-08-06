@@ -8,12 +8,13 @@ export function Hero() {
       <span className="rounded-full border bg-muted/50 px-3 py-1 text-xs font-medium text-muted-foreground">
         Gratis para empezar
       </span>
-      <h1 className="text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
-        Tus finanzas personales, claras y bajo control
+      <h1 className="font-display text-4xl font-semibold tracking-tight text-balance sm:text-5xl">
+        Controlá tus gastos y seguí tus inversiones, todo en un solo lugar
       </h1>
       <p className="max-w-xl text-lg text-muted-foreground text-balance">
-        Registrá ingresos y gastos, organizalos por categoría y mirá tu
-        balance en un dashboard simple. Sin planillas, sin complicaciones.
+        Registrá ingresos y gastos en segundos, y mirá cripto, CEDEARs,
+        acciones y bonos con precios que se actualizan solos. Sin planillas,
+        sin cargar nada a mano.
       </p>
       <div className="flex flex-col gap-3 sm:flex-row">
         <Link

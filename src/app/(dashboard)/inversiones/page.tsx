@@ -1,29 +1,32 @@
-import { TrendingUp } from "lucide-react";
-import { Card, CardContent } from "@/components/ui/card";
+import { getInvestmentsData } from "@/lib/actions/assets";
+import { getEconomicNews } from "@/lib/market-data/news";
+import { InvestmentsView } from "@/components/investments/investments-view";
+import { NewsWidget } from "@/components/investments/news-widget";
 
-export default function InversionesPage() {
+export default async function InversionesPage() {
+  const [{ items, dolarRates }, news] = await Promise.all([
+    getInvestmentsData(),
+    getEconomicNews(),
+  ]);
+
   return (
     <div className="flex flex-col gap-6">
       <div>
         <h1 className="text-xl font-semibold">Inversiones</h1>
         <p className="text-sm text-muted-foreground">
-          Organizá tus inversiones por nivel de riesgo.
+          Tus activos agrupados por nivel de riesgo. El precio se actualiza
+          solo cada un minuto.
         </p>
       </div>
-      <Card>
-        <CardContent className="flex flex-col items-center gap-3 py-16 text-center">
-          <div className="flex size-12 items-center justify-center rounded-full bg-primary/10">
-            <TrendingUp className="size-6 text-primary" />
-          </div>
-          <h2 className="text-lg font-medium">Próximamente</h2>
-          <p className="max-w-md text-sm text-muted-foreground">
-            Vas a poder cargar tus activos por riesgo (bajo, medio, alto),
-            ver su evolución histórica y simular cuánto podrías obtener
-            invirtiendo un monto durante un plazo determinado, en base a
-            rendimientos pasados.
-          </p>
-        </CardContent>
-      </Card>
+
+      <InvestmentsView initialItems={items} initialDolarRates={dolarRates} />
+
+      <NewsWidget items={news} />
+
+      <p className="text-center text-xs text-muted-foreground">
+        Cotizaciones de fuentes externas (CoinGecko, data912.com, dolarapi.com),
+        con demora. No es asesoramiento financiero.
+      </p>
     </div>
   );
 }
