@@ -26,14 +26,27 @@ export async function getCoinGeckoQuote(
   }
 }
 
+// El plan público de CoinGecko no deja pedir más de 365 días de historial.
+const MAX_FREE_DAYS = 365;
+
 export async function getCoinGeckoHistory(
   id: string,
-  days: number | "max" = 365,
+  days: number = 365,
 ): Promise<MarketSeriesPoint[]> {
   try {
+    const clampedDays = Math.min(days, MAX_FREE_DAYS);
+    // Para rangos cortos dejamos que la API elija la granularidad (5min/hora),
+    // así el gráfico de día/semana no queda con 1 o 2 puntos nada más.
+    const useDaily = clampedDays > 90;
+    const params = new URLSearchParams({
+      vs_currency: "usd",
+      days: String(clampedDays),
+    });
+    if (useDaily) params.set("interval", "daily");
+
     const res = await fetch(
-      `${BASE_URL}/coins/${encodeURIComponent(id)}/market_chart?vs_currency=usd&days=${days}&interval=daily`,
-      { next: { revalidate: 3600 } },
+      `${BASE_URL}/coins/${encodeURIComponent(id)}/market_chart?${params}`,
+      { next: { revalidate: clampedDays <= 7 ? 120 : 3600 } },
     );
     if (!res.ok) return [];
 
@@ -41,7 +54,9 @@ export async function getCoinGeckoHistory(
     const prices: [number, number][] = data?.prices ?? [];
 
     return prices.map(([timestampMs, price]) => ({
-      date: new Date(timestampMs).toISOString().slice(0, 10),
+      date: useDaily
+        ? new Date(timestampMs).toISOString().slice(0, 10)
+        : new Date(timestampMs).toISOString().slice(0, 16).replace("T", " "),
       close: price,
     }));
   } catch {

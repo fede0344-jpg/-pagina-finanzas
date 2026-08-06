@@ -63,7 +63,12 @@ export async function getData912History(
     if (!res.ok) return [];
 
     const data: HistoryEntry[] = await res.json();
-    const sliced = days === "all" ? data : data.slice(-days);
+    // No hay datos intradía acá (solo cierres diarios), así que para
+    // rangos muy cortos (día/semana) igual mostramos algunas ruedas más
+    // para que el gráfico no quede vacío o con un solo punto.
+    const minPoints = 5;
+    const sliced =
+      days === "all" ? data : data.slice(-Math.max(days, minPoints));
     return sliced.map((row) => ({ date: row.date, close: row.c }));
   } catch {
     return [];

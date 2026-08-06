@@ -4,6 +4,7 @@ import { useState, useTransition } from "react";
 import { TrendingUp, TrendingDown } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
 import { AssetChart } from "./asset-chart";
+import { AssetChartDialog } from "./asset-chart-dialog";
 import { AssetFormDialog } from "./asset-form-dialog";
 import { DeleteAssetButton } from "./delete-asset-button";
 import { getAssetHistoryForRange } from "@/lib/actions/assets";
@@ -13,6 +14,19 @@ import { cn } from "@/lib/utils";
 import { HISTORY_RANGES } from "@/lib/market-data/types";
 import type { Asset } from "@/lib/types/domain";
 import type { AssetMarketData, HistoryRange } from "@/lib/market-data/types";
+import type { RiskLevel } from "@/lib/types/database.types";
+
+const RISK_LABEL: Record<RiskLevel, string> = {
+  bajo: "Riesgo bajo",
+  medio: "Riesgo medio",
+  alto: "Riesgo alto",
+};
+
+const RISK_CLASS: Record<RiskLevel, string> = {
+  bajo: "border-positive/30 bg-positive/10 text-positive",
+  medio: "border-foreground/20 bg-muted text-foreground",
+  alto: "border-negative/30 bg-negative/10 text-negative",
+};
 
 export function AssetCard({
   asset,
@@ -51,8 +65,17 @@ export function AssetCard({
             <p className="text-xs text-muted-foreground uppercase">
               {asset.symbol}
             </p>
+            <span
+              className={cn(
+                "mt-1.5 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                RISK_CLASS[asset.risk_level],
+              )}
+            >
+              {RISK_LABEL[asset.risk_level]}
+            </span>
           </div>
           <div className="flex gap-1">
+            <AssetChartDialog asset={asset} />
             <AssetFormDialog asset={asset} />
             <DeleteAssetButton assetId={asset.id} assetName={asset.name} />
           </div>

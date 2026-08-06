@@ -7,6 +7,7 @@ import {
   ArrowLeftRight,
   Tags,
   TrendingUp,
+  Calculator,
 } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
@@ -16,6 +17,7 @@ const NAV_ITEMS = [
   { href: "/transacciones", label: "Transacciones", icon: ArrowLeftRight },
   { href: "/categorias", label: "Categorías", icon: Tags },
   { href: "/inversiones", label: "Inversiones", icon: TrendingUp },
+  { href: "/calculadora", label: "Calculadora", icon: Calculator },
 ] as const;
 
 export function Sidebar() {

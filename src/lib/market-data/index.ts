@@ -16,10 +16,16 @@ export { getDolarRates } from "./dolar";
 export type { DolarRate } from "./dolar";
 
 const RANGE_DAYS: Record<Exclude<HistoryRange, "todo">, number> = {
+  "1D": 1,
+  "1S": 7,
   "1M": 30,
   "6M": 182,
   "1A": 365,
 };
+
+// CoinGecko (gratis) no deja pedir más de 365 días, así que "Todo" en
+// cripto muestra el máximo permitido en vez de quedar vacío.
+const CRYPTO_MAX_DAYS = 365;
 
 type AssetRef = { asset_type: AssetType; symbol: string };
 
@@ -30,7 +36,7 @@ export async function getAssetHistory(
   if (asset.asset_type === "crypto") {
     return getCoinGeckoHistory(
       asset.symbol,
-      range === "todo" ? "max" : RANGE_DAYS[range],
+      range === "todo" ? CRYPTO_MAX_DAYS : RANGE_DAYS[range],
     );
   }
   return getData912History(
