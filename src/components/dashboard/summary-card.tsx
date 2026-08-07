@@ -14,7 +14,7 @@ export function SummaryCard({
   hint?: string;
 }) {
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:-translate-y-0.5 hover:ring-primary/25 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <CardContent className="flex flex-col gap-1">
         <span className="text-sm text-muted-foreground">{label}</span>
         <div className="flex items-baseline gap-2">

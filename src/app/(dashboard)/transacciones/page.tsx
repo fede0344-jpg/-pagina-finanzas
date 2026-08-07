@@ -2,6 +2,7 @@ import { createClient } from "@/lib/supabase/server";
 import { TransactionFilters } from "@/components/transactions/transaction-filters";
 import { TransactionTable } from "@/components/transactions/transaction-table";
 import { TransactionFormDialog } from "@/components/transactions/transaction-form-dialog";
+import { PageHeader } from "@/components/layout/page-header";
 import type { TransactionWithCategory } from "@/lib/types/domain";
 
 function monthRange(month: string) {
@@ -51,20 +52,18 @@ export default async function TransaccionesPage({
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex items-center justify-between">
-        <div>
-          <h1 className="text-xl font-semibold">Transacciones</h1>
-          <p className="text-sm text-muted-foreground">
-            Registrá y filtrá tus ingresos y gastos.
-          </p>
-        </div>
-        <TransactionFormDialog categories={categories ?? []} />
-      </div>
-      <TransactionFilters categories={categories ?? []} />
-      <TransactionTable
-        transactions={(transactions ?? []) as TransactionWithCategory[]}
-        categories={categories ?? []}
+      <PageHeader
+        title="Transacciones"
+        description="Registrá y filtrá tus ingresos y gastos."
+        action={<TransactionFormDialog categories={categories ?? []} />}
       />
+      <TransactionFilters categories={categories ?? []} />
+      <div className="reveal">
+        <TransactionTable
+          transactions={(transactions ?? []) as TransactionWithCategory[]}
+          categories={categories ?? []}
+        />
+      </div>
     </div>
   );
 }

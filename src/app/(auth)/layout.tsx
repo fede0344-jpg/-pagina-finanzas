@@ -9,6 +9,8 @@ import {
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
 import { GradientBackdrop } from "@/components/marketing/gradient-backdrop";
+import { LiveTicker } from "@/components/marketing/live-ticker";
+import { getTickerItems } from "@/lib/market-data/ticker";
 
 const HIGHLIGHTS = [
   {
@@ -25,30 +27,36 @@ const HIGHLIGHTS = [
   },
 ];
 
-export default function AuthLayout({
+export default async function AuthLayout({
   children,
 }: {
   children: React.ReactNode;
 }) {
+  const tickerItems = await getTickerItems();
+
   return (
     <main className="relative grid min-h-screen lg:grid-cols-2">
       <GradientBackdrop />
       <Link
         href="/"
-        className="absolute top-4 left-4 z-10 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
+        className="group absolute top-4 left-4 z-10 flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
       >
-        <ArrowLeft className="size-4" />
+        <ArrowLeft className="size-4 transition-transform group-hover:-translate-x-0.5 motion-reduce:transition-none" />
         Volver al inicio
       </Link>
       <div className="absolute top-4 right-4 z-10">
         <ThemeToggle />
       </div>
-      <section className="hidden flex-col justify-center gap-12 px-16 py-16 lg:flex">
-        <Link href="/">
+
+      <section className="hidden flex-col justify-center gap-10 px-16 py-16 lg:flex">
+        <Link href="/" className="w-fit">
           <Logo textClassName="text-2xl" markClassName="size-11" />
         </Link>
+
+        <LiveTicker initialItems={tickerItems} />
+
         <div className="flex flex-col gap-5">
-          <h1 className="font-display max-w-lg text-5xl font-semibold tracking-tight text-balance">
+          <h1 className="font-display max-w-lg text-5xl leading-[1.05] font-semibold tracking-tight text-balance">
             Tus finanzas e inversiones, en un solo lugar
           </h1>
           <p className="max-w-md text-xl text-muted-foreground text-balance">
@@ -56,7 +64,8 @@ export default function AuthLayout({
             precios y gráficos que se actualizan solos.
           </p>
         </div>
-        <ul className="flex flex-col gap-6">
+
+        <ul className="flex flex-col gap-5">
           {HIGHLIGHTS.map((item) => (
             <li key={item.text} className="flex items-center gap-4">
               <div className="flex size-11 shrink-0 items-center justify-center rounded-lg bg-primary/10">
@@ -66,9 +75,13 @@ export default function AuthLayout({
             </li>
           ))}
         </ul>
-        <div className="flex items-center gap-2 text-base text-muted-foreground">
-          <ShieldCheck className="size-5" />
-          Tus datos son privados: cada cuenta solo ve su propia información.
+
+        <div className="flex items-start gap-2.5 rounded-lg border bg-card/60 px-4 py-3 text-sm text-muted-foreground backdrop-blur-sm">
+          <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+          <span>
+            Nunca te pedimos acceso al banco ni a tus tarjetas. Cada cuenta ve
+            solamente su propia información.
+          </span>
         </div>
       </section>
 

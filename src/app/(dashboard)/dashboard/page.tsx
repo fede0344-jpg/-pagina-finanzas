@@ -9,6 +9,7 @@ import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-t
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { InvestmentsSummaryCard } from "@/components/dashboard/investments-summary-card";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { PageHeader } from "@/components/layout/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import type { TransactionWithCategory } from "@/lib/types/domain";
 
@@ -48,12 +49,10 @@ export default async function DashboardPage() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div>
-        <h1 className="text-xl font-semibold">Dashboard</h1>
-        <p className="text-sm text-muted-foreground">
-          Tu resumen financiero de un vistazo.
-        </p>
-      </div>
+      <PageHeader
+        title="Dashboard"
+        description="Tu resumen financiero de un vistazo."
+      />
 
       <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
         <SummaryCard label="Balance total" amount={balance} />
@@ -79,7 +78,7 @@ export default async function DashboardPage() {
         />
       </div>
 
-      <div className="grid gap-4 lg:grid-cols-2">
+      <div className="reveal grid gap-4 lg:grid-cols-2">
         <RecentTransactions
           transactions={(recentTransactions ?? []) as TransactionWithCategory[]}
           categories={categories ?? []}
@@ -102,7 +101,7 @@ export default async function DashboardPage() {
           </CardContent>
         </Card>
       ) : (
-        <div className="grid gap-4 lg:grid-cols-2">
+        <div className="reveal grid gap-4 lg:grid-cols-2">
           <Card>
             <CardHeader>
               <CardTitle className="text-base">
