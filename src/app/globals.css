@@ -141,3 +141,95 @@
     @apply font-sans;
   }
 }
+
+/* ---------- Movimiento ---------- */
+
+/* Revelado al entrar en pantalla (scroll-driven, sin JS). */
+@keyframes reveal-up {
+  from {
+    opacity: 0;
+    transform: translateY(1.5rem);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@supports (animation-timeline: view()) {
+  .reveal {
+    animation: reveal-up linear both;
+    animation-timeline: view();
+    animation-range: entry 10% cover 28%;
+  }
+}
+
+/* Deriva lenta del fondo: atmósfera, no decoración ruidosa. */
+@keyframes drift-a {
+  50% {
+    transform: translate3d(4%, 6%, 0) scale(1.06);
+  }
+}
+
+@keyframes drift-b {
+  50% {
+    transform: translate3d(-5%, -4%, 0) scale(1.08);
+  }
+}
+
+.drift-a {
+  animation: drift-a 26s ease-in-out infinite;
+}
+
+.drift-b {
+  animation: drift-b 34s ease-in-out infinite;
+}
+
+/* Latido del punto "en vivo" del ticker. */
+@keyframes live-pulse {
+  0%,
+  100% {
+    opacity: 1;
+    transform: scale(1);
+  }
+  50% {
+    opacity: 0.35;
+    transform: scale(0.82);
+  }
+}
+
+.live-dot {
+  animation: live-pulse 2s ease-in-out infinite;
+}
+
+/* Destello al actualizarse una cotización. */
+@keyframes value-flash-up {
+  from {
+    color: var(--positive);
+  }
+}
+
+@keyframes value-flash-down {
+  from {
+    color: var(--negative);
+  }
+}
+
+.flash-up {
+  animation: value-flash-up 1.2s ease-out;
+}
+
+.flash-down {
+  animation: value-flash-down 1.2s ease-out;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal,
+  .drift-a,
+  .drift-b,
+  .live-dot,
+  .flash-up,
+  .flash-down {
+    animation: none;
+  }
+}

@@ -34,11 +34,14 @@ const CATEGORY_ROWS = [
 
 const TREND_BARS = [40, 65, 50, 80, 60, 90];
 
-export function DashboardPreview() {
+export function DashboardPreview({ className }: { className?: string }) {
   return (
     <div
       aria-hidden
-      className="mx-auto max-w-3xl rounded-2xl border bg-card p-4 shadow-2xl sm:p-6"
+      className={
+        "rounded-2xl border bg-card p-4 shadow-2xl sm:p-6 " +
+        (className ?? "mx-auto max-w-3xl")
+      }
     >
       <div className="grid grid-cols-2 gap-3 sm:grid-cols-4">
         <PreviewTile label="Balance" value="$1.284.500" />

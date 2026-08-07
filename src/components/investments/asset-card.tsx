@@ -57,7 +57,7 @@ export function AssetCard({
   }
 
   return (
-    <Card>
+    <Card className="transition-all duration-200 hover:-translate-y-0.5 hover:ring-primary/25 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div>

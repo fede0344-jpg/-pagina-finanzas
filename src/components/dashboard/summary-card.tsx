@@ -1,5 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
-import { formatCurrency } from "@/lib/utils/format";
+import { AnimatedAmount } from "./animated-amount";
 import { cn } from "@/lib/utils";
 
 export function SummaryCard({
@@ -25,7 +25,7 @@ export function SummaryCard({
               tone === "negative" && "text-negative",
             )}
           >
-            {formatCurrency(amount)}
+            <AnimatedAmount amount={amount} />
           </span>
           {hint ? (
             <span
