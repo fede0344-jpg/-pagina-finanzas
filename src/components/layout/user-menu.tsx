@@ -1,4 +1,5 @@
-import { LogOut, User } from "lucide-react";
+import Link from "next/link";
+import { LogOut, Settings, User } from "lucide-react";
 import { signOut } from "@/lib/actions/auth";
 import { buttonVariants } from "@/components/ui/button";
 import {
@@ -22,6 +23,10 @@ export function UserMenu({ email }: { email: string }) {
         <span className="max-w-40 truncate">{email}</span>
       </DropdownMenuTrigger>
       <DropdownMenuContent align="end">
+        <DropdownMenuItem render={<Link href="/cuenta" />}>
+          <Settings />
+          Mi cuenta
+        </DropdownMenuItem>
         <form action={signOut}>
           <DropdownMenuItem
             variant="destructive"

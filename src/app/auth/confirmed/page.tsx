@@ -12,25 +12,36 @@ export default function ConfirmedPage() {
 
   useEffect(() => {
     async function confirmSession() {
+      const supabase = createClient();
+
+      // Enlaces viejos: los tokens vienen en el fragmento (#access_token=…).
       const hash = window.location.hash.startsWith("#")
         ? window.location.hash.slice(1)
         : window.location.hash;
-      const params = new URLSearchParams(hash);
-      const accessToken = params.get("access_token");
-      const refreshToken = params.get("refresh_token");
+      const hashParams = new URLSearchParams(hash);
+      const accessToken = hashParams.get("access_token");
+      const refreshToken = hashParams.get("refresh_token");
 
-      if (!accessToken || !refreshToken) {
-        throw new Error("missing tokens");
+      if (accessToken && refreshToken) {
+        const { error } = await supabase.auth.setSession({
+          access_token: accessToken,
+          refresh_token: refreshToken,
+        });
+        if (error) throw error;
+        router.push("/dashboard");
+        return;
       }
 
-      const supabase = createClient();
-      const { error } = await supabase.auth.setSession({
-        access_token: accessToken,
-        refresh_token: refreshToken,
-      });
-      if (error) throw error;
+      // Flujo PKCE: llega ?code=… y hay que canjearlo por la sesión.
+      const code = new URLSearchParams(window.location.search).get("code");
+      if (code) {
+        const { error } = await supabase.auth.exchangeCodeForSession(code);
+        if (error) throw error;
+        router.push("/dashboard");
+        return;
+      }
 
-      router.push("/dashboard");
+      throw new Error("missing tokens");
     }
 
     confirmSession().catch(() => setStatus("error"));

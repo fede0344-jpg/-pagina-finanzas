@@ -6,7 +6,12 @@ const PROTECTED_PREFIXES = [
   "/transacciones",
   "/categorias",
   "/inversiones",
+  "/calculadora",
+  "/cuenta",
 ];
+// Solo estas redirigen a quien ya inició sesión: /nueva-contrasena queda
+// afuera a propósito, porque el enlace de recuperación abre sesión y hay
+// que poder llegar igual al formulario.
 const AUTH_PAGES = ["/login", "/signup"];
 
 export async function proxy(request: NextRequest) {
