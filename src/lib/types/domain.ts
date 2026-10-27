@@ -8,3 +8,5 @@ export type TransactionWithCategory = Transaction & {
 };
 
 export type Asset = Database["public"]["Tables"]["assets"]["Row"];
+export type PortfolioPosition =
+  Database["public"]["Tables"]["portfolio_positions"]["Row"];

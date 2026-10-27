@@ -6,6 +6,7 @@ const PROTECTED_PREFIXES = [
   "/transacciones",
   "/categorias",
   "/inversiones",
+  "/portafolio",
   "/calculadora",
   "/cuenta",
 ];
