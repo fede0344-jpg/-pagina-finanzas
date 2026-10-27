@@ -31,7 +31,7 @@ export function ResetRequestForm() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Revisá tu correo</CardTitle>
+          <CardTitle className="display text-2xl">Revisá tu correo</CardTitle>
           <CardDescription>
             Si ese email tiene una cuenta, te mandamos un enlace para elegir
             una contraseña nueva. El enlace vence en una hora.
@@ -52,7 +52,7 @@ export function ResetRequestForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Recuperar contraseña</CardTitle>
+        <CardTitle className="display text-2xl">Recuperar contraseña</CardTitle>
         <CardDescription>
           Escribí tu email y te mandamos un enlace para crear una nueva.
         </CardDescription>

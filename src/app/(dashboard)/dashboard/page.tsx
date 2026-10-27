@@ -2,13 +2,12 @@ import Link from "next/link";
 import { createClient } from "@/lib/supabase/server";
 import { getInvestmentsData } from "@/lib/actions/assets";
 import { buildDashboardData } from "@/lib/dashboard/aggregate";
-import { SummaryCard } from "@/components/dashboard/summary-card";
-import { ExpensesByCategoryChart } from "@/components/dashboard/expenses-by-category-chart";
-import { ExpenseCategoryBreakdown } from "@/components/dashboard/expense-category-breakdown";
-import { IncomeExpenseTrendChart } from "@/components/dashboard/income-expense-trend-chart";
+import { BalanceTile } from "@/components/dashboard/balance-tile";
+import { StatTile } from "@/components/dashboard/stat-tile";
+import { FlowChart } from "@/components/dashboard/flow-chart";
+import { CategoryTile } from "@/components/dashboard/category-tile";
 import { RecentTransactions } from "@/components/dashboard/recent-transactions";
 import { InvestmentsSummaryCard } from "@/components/dashboard/investments-summary-card";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { PageHeader } from "@/components/layout/page-header";
 import { buttonVariants } from "@/components/ui/button";
 import type { TransactionWithCategory } from "@/lib/types/domain";
@@ -43,6 +42,7 @@ export default async function DashboardPage() {
     savingsRate,
     expenseByCategory,
     monthlyTrend,
+    balanceCurve,
   } = buildDashboardData(transactions ?? [], categories ?? []);
 
   const hasTransactions = (transactions ?? []).length > 0;
@@ -50,82 +50,79 @@ export default async function DashboardPage() {
   return (
     <div className="flex flex-col gap-6">
       <PageHeader
-        title="Dashboard"
-        description="Tu resumen financiero de un vistazo."
+        title="Tu plata, de un vistazo"
+        description="Balance, movimientos del mes e inversiones en una sola pantalla."
       />
 
-      <div className="grid gap-4 sm:grid-cols-2 lg:grid-cols-4">
-        <SummaryCard label="Balance total" amount={balance} />
-        <SummaryCard
-          label="Ingresos del mes"
-          amount={incomeThisMonth}
-          tone="positive"
+      <div className="grid gap-4 lg:grid-cols-12">
+        <BalanceTile
+          balance={balance}
+          curve={balanceCurve}
+          savingsRate={savingsRate}
         />
-        <SummaryCard
-          label="Gastos del mes"
-          amount={expenseThisMonth}
-          tone="negative"
-        />
-        <SummaryCard
-          label="Ahorro del mes"
-          amount={savings}
-          tone={savings >= 0 ? "positive" : "negative"}
-          hint={
-            savingsRate !== null
-              ? `${savingsRate >= 0 ? "+" : ""}${savingsRate.toFixed(0)}% del ingreso`
-              : undefined
-          }
-        />
-      </div>
 
-      <div className="reveal grid gap-4 lg:grid-cols-2">
+        <div className="grid gap-4 sm:grid-cols-2 lg:col-span-5">
+          <StatTile
+            kind="ing"
+            index={1}
+            label="Ingresos del mes"
+            amount={incomeThisMonth}
+          />
+          <StatTile
+            kind="gas"
+            index={2}
+            label="Gastos del mes"
+            amount={expenseThisMonth}
+          />
+          <StatTile
+            kind="aho"
+            index={3}
+            className="sm:col-span-2"
+            label="Ahorro del mes"
+            amount={savings}
+            hint={
+              savingsRate !== null
+                ? `${savingsRate >= 0 ? "+" : ""}${savingsRate.toFixed(0)}% del ingreso`
+                : undefined
+            }
+          />
+        </div>
+
+        {hasTransactions ? (
+          <>
+            <section
+              className="tile tilt lg:col-span-7"
+              style={{ "--i": 4 } as React.CSSProperties}
+            >
+              <FlowChart data={monthlyTrend} />
+            </section>
+            <CategoryTile data={expenseByCategory} />
+          </>
+        ) : (
+          <section
+            className="tile flex flex-col items-center gap-4 py-12 text-center lg:col-span-12"
+            style={{ "--i": 4 } as React.CSSProperties}
+          >
+            <p className="display text-2xl">Todavía no hay movimientos</p>
+            <p className="max-w-sm text-sm text-muted-foreground">
+              Cargá tu primer ingreso o gasto y acá vas a ver el balance, el
+              gráfico por mes y tus gastos por categoría.
+            </p>
+            <Link
+              href="/transacciones"
+              className={buttonVariants({ variant: "default", size: "lg" })}
+            >
+              Cargar mi primer movimiento
+            </Link>
+          </section>
+        )}
+
         <RecentTransactions
           transactions={(recentTransactions ?? []) as TransactionWithCategory[]}
           categories={categories ?? []}
         />
         <InvestmentsSummaryCard items={investmentItems} />
       </div>
-
-      {!hasTransactions ? (
-        <Card>
-          <CardContent className="flex flex-col items-center gap-3 py-10 text-center">
-            <p className="text-sm text-muted-foreground">
-              Todavía no cargaste ninguna transacción.
-            </p>
-            <Link
-              href="/transacciones"
-              className={buttonVariants({ variant: "default" })}
-            >
-              Cargar tu primera transacción
-            </Link>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="reveal grid gap-4 lg:grid-cols-2">
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Gastos por categoría (este mes)
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="flex flex-col gap-4">
-              <ExpensesByCategoryChart data={expenseByCategory} />
-              <ExpenseCategoryBreakdown data={expenseByCategory} />
-            </CardContent>
-          </Card>
-
-          <Card>
-            <CardHeader>
-              <CardTitle className="text-base">
-                Ingresos vs. gastos (últimos 6 meses)
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <IncomeExpenseTrendChart data={monthlyTrend} />
-            </CardContent>
-          </Card>
-        </div>
-      )}
     </div>
   );
 }

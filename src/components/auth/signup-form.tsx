@@ -31,7 +31,7 @@ export function SignupForm() {
     return (
       <Card>
         <CardHeader>
-          <CardTitle className="text-xl">Revisá tu email</CardTitle>
+          <CardTitle className="display text-2xl">Revisá tu email</CardTitle>
           <CardDescription>
             Te enviamos un enlace de confirmación. Abrilo para activar tu
             cuenta.
@@ -44,7 +44,7 @@ export function SignupForm() {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-xl">Creá tu cuenta gratis</CardTitle>
+        <CardTitle className="display text-2xl">Creá tu cuenta gratis</CardTitle>
         <CardDescription>
           Organizá tus finanzas y seguí tus inversiones en menos de un
           minuto.

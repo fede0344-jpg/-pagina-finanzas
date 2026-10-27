@@ -55,8 +55,8 @@ export function LiveTicker({ initialItems }: { initialItems: TickerItem[] }) {
   if (items.length === 0) return null;
 
   return (
-    <div className="flex w-fit flex-wrap items-center justify-center gap-x-5 gap-y-1.5 rounded-2xl border bg-card/70 px-4 py-2 text-sm backdrop-blur-sm lg:justify-start">
-      <span className="flex items-center gap-1.5 text-xs font-medium text-muted-foreground">
+    <div className="flex w-fit flex-wrap items-center justify-center gap-x-5 gap-y-1.5 rounded-3xl bg-card px-4 py-2.5 text-sm ring-1 ring-foreground/8 lg:justify-start">
+      <span className="eyebrow flex items-center gap-1.5 text-muted-foreground">
         <span className="live-dot size-1.5 rounded-full bg-positive" />
         En vivo
       </span>
@@ -68,7 +68,7 @@ export function LiveTicker({ initialItems }: { initialItems: TickerItem[] }) {
             MOBILE_LABELS.has(item.label) ? "flex" : "hidden",
           )}
         >
-          <span className="text-xs text-muted-foreground">{item.label}</span>
+          <span className="font-mono text-xs text-muted-foreground">{item.label}</span>
           <span
             key={`${item.label}-${flashKey}`}
             className={cn(

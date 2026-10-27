@@ -16,13 +16,18 @@ interface CategoryRow {
 
 const NO_CATEGORY_COLOR = "#94a3b8";
 
+// Meses que se arma la serie del gráfico; la pantalla elige cuántos mostrar.
+export const TREND_MONTHS = 24;
+// Meses que dibuja la curva del balance.
+const BALANCE_CURVE_MONTHS = 12;
+
 export function buildDashboardData(
   transactions: TransactionRow[],
   categories: CategoryRow[],
   now = new Date(),
 ) {
   const currentMonth = monthKey(now);
-  const trendMonths = lastNMonthKeys(6, now);
+  const trendMonths = lastNMonthKeys(TREND_MONTHS, now);
 
   let balance = 0;
   let incomeThisMonth = 0;
@@ -63,6 +68,25 @@ export function buildDashboardData(
     }))
     .sort((a, b) => b.amount - a.amount);
 
+  // Balance acumulado al cierre de cada mes, para la curva del bloque principal.
+  const curveMonths = lastNMonthKeys(BALANCE_CURVE_MONTHS, now);
+  const firstCurveMonth = curveMonths[0];
+  let running = 0;
+  for (const tx of transactions) {
+    if (tx.occurred_on.slice(0, 7) < firstCurveMonth) {
+      running += tx.type === "income" ? tx.amount : -tx.amount;
+    }
+  }
+  const netByMonth = new Map<string, number>();
+  for (const tx of transactions) {
+    const m = tx.occurred_on.slice(0, 7);
+    netByMonth.set(m, (netByMonth.get(m) ?? 0) + (tx.type === "income" ? tx.amount : -tx.amount));
+  }
+  const balanceCurve = curveMonths.map((key) => {
+    running += netByMonth.get(key) ?? 0;
+    return running;
+  });
+
   const monthlyTrend = trendMonths.map((key) => ({
     month: key,
     label: formatMonthLabel(key),
@@ -82,6 +106,7 @@ export function buildDashboardData(
     savingsRate,
     expenseByCategory: expenseByCategoryList,
     monthlyTrend,
+    balanceCurve,
   };
 }
 

@@ -1,13 +1,19 @@
 "use client";
 
 import { useEffect, useRef, useState } from "react";
-import { formatCurrency } from "@/lib/utils/format";
+import { formatARSWhole, formatCurrency } from "@/lib/utils/format";
 
 const DURATION_MS = 700;
 
 // Cuenta desde 0 hasta el valor real al cargar. Si el sistema pide menos
 // movimiento, muestra el número final directamente.
-export function AnimatedAmount({ amount }: { amount: number }) {
+export function AnimatedAmount({
+  amount,
+  currency = "usd",
+}: {
+  amount: number;
+  currency?: "usd" | "ars";
+}) {
   const [display, setDisplay] = useState(amount);
   const frameRef = useRef<number | null>(null);
 
@@ -40,5 +46,5 @@ export function AnimatedAmount({ amount }: { amount: number }) {
     };
   }, [amount]);
 
-  return <>{formatCurrency(display)}</>;
+  return <>{currency === "ars" ? formatARSWhole(display) : formatCurrency(display)}</>;
 }

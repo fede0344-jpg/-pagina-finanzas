@@ -9,7 +9,7 @@ export function MobileBottomNav() {
   const pathname = usePathname();
 
   return (
-    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t bg-card pb-[env(safe-area-inset-bottom)] md:hidden">
+    <nav className="fixed inset-x-0 bottom-0 z-40 flex border-t border-foreground/8 bg-background/90 px-1 pt-1 pb-[max(0.25rem,env(safe-area-inset-bottom))] backdrop-blur-md lg:hidden">
       {NAV_ITEMS.map((item) => {
         const isActive = pathname.startsWith(item.href);
         const Icon = item.icon;
@@ -17,13 +17,22 @@ export function MobileBottomNav() {
           <Link
             key={item.href}
             href={item.href}
-            className={cn(
-              "flex flex-1 flex-col items-center gap-0.5 py-2 text-[11px] font-medium",
-              isActive ? "text-primary" : "text-muted-foreground",
-            )}
+            aria-current={isActive ? "page" : undefined}
+            className="flex flex-1 flex-col items-center gap-0.5 py-1 text-[11px] font-semibold"
           >
-            <Icon className="size-5" />
-            {item.shortLabel}
+            <span
+              className={cn(
+                "flex h-7 w-12 items-center justify-center rounded-full transition-colors",
+                isActive ? "bg-ink text-on-ink" : "text-muted-foreground",
+              )}
+            >
+              <Icon className="size-[18px]" />
+            </span>
+            <span
+              className={isActive ? "text-foreground" : "text-muted-foreground"}
+            >
+              {item.shortLabel}
+            </span>
           </Link>
         );
       })}

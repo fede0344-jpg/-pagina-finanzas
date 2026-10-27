@@ -1,4 +1,4 @@
-import { ChevronDown } from "lucide-react";
+import { Plus } from "lucide-react";
 
 const FAQS = [
   {
@@ -29,18 +29,24 @@ const FAQS = [
 
 export function FaqSection() {
   return (
-    <section className="mx-auto max-w-2xl px-4 py-16">
-      <h2 className="font-display text-center text-2xl font-semibold tracking-tight">
+    <section
+      id="preguntas"
+      className="mx-auto grid w-full max-w-[1320px] scroll-mt-20 gap-8 px-4 py-16 md:px-8 lg:grid-cols-12"
+    >
+      <h2 className="display text-4xl leading-[1] text-balance sm:text-5xl lg:col-span-5">
         Preguntas frecuentes
       </h2>
-      <div className="mt-8 flex flex-col divide-y divide-border rounded-xl border bg-card">
+      <div className="flex flex-col gap-3 lg:col-span-7">
         {FAQS.map((faq) => (
-          <details key={faq.question} className="group p-4">
-            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 font-medium [&::-webkit-details-marker]:hidden">
+          <details
+            key={faq.question}
+            className="tile group p-0 [&_summary::-webkit-details-marker]:hidden"
+          >
+            <summary className="flex cursor-pointer list-none items-center justify-between gap-4 px-6 py-5 font-bold">
               {faq.question}
-              <ChevronDown className="size-4 shrink-0 text-muted-foreground transition-transform group-open:rotate-180" />
+              <Plus className="size-5 shrink-0 text-primary transition-transform group-open:rotate-45" />
             </summary>
-            <p className="mt-2 text-sm text-muted-foreground">
+            <p className="px-6 pb-5 text-sm text-muted-foreground">
               {faq.answer}
             </p>
           </details>

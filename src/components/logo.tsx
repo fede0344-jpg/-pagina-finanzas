@@ -8,7 +8,7 @@ export function LogoMark({ className }: { className?: string }) {
       xmlns="http://www.w3.org/2000/svg"
       className={cn("shrink-0", className)}
     >
-      <rect width="32" height="32" rx="9" fill="var(--primary)" />
+      <rect width="32" height="32" rx="9" fill="#2f5bff" />
       <path
         d="M8.5 20.5L13 15.5L16.5 18.5L23 11"
         stroke="white"

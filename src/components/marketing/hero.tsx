@@ -18,16 +18,16 @@ export async function Hero() {
   const tickerItems = await getTickerItems();
 
   return (
-    <section className="mx-auto max-w-6xl px-4 pt-12 pb-16 sm:pt-16">
-      <div className="grid items-center gap-12 lg:grid-cols-[1.05fr_1fr] lg:gap-10">
-        <div className="flex flex-col items-center gap-6 text-center lg:items-start lg:text-left">
-          <LiveTicker initialItems={tickerItems} />
+    <section className="mx-auto w-full max-w-[1320px] px-4 pt-10 pb-12 md:px-8 md:pt-16">
+      <div className="flex flex-col items-start gap-7">
+        <LiveTicker initialItems={tickerItems} />
 
-          <h1 className="font-display text-4xl leading-[1.05] font-semibold tracking-tight text-balance sm:text-5xl lg:text-6xl">
-            Tus gastos y tus inversiones, en un solo lugar
-          </h1>
+        <h1 className="display max-w-5xl text-[clamp(2.5rem,8vw,6.6rem)] leading-[0.96] text-balance">
+          Tus gastos y tus inversiones, en un solo lugar
+        </h1>
 
-          <p className="max-w-lg text-lg text-muted-foreground text-balance">
+        <div className="flex w-full flex-col gap-6 md:flex-row md:items-end md:justify-between">
+          <p className="max-w-xl text-lg text-muted-foreground text-balance">
             Registrá ingresos y gastos en segundos, y seguí cripto, CEDEARs,
             acciones y bonos con precios que se actualizan solos. Sin
             planillas, sin cargar nada a mano.
@@ -36,7 +36,7 @@ export async function Hero() {
           <div className="flex flex-col gap-3 sm:flex-row">
             <Link
               href="/signup"
-              className={cn(buttonVariants({ size: "lg" }), "group gap-2 px-6")}
+              className={cn(buttonVariants({ size: "lg" }), "group px-7")}
             >
               Crear cuenta gratis
               <ArrowUpRight className="size-4 transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5 motion-reduce:transition-none" />
@@ -45,38 +45,35 @@ export async function Hero() {
               href="/login"
               className={cn(
                 buttonVariants({ variant: "outline", size: "lg" }),
-                "px-6",
+                "px-7",
               )}
             >
               Iniciar sesión
             </Link>
           </div>
-
-          <div className="flex max-w-md items-start gap-2.5 rounded-lg border bg-card/60 px-4 py-3 text-left text-sm text-muted-foreground backdrop-blur-sm">
-            <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
-            <span>
-              Nunca te pedimos acceso al banco ni a tus tarjetas. Cada cuenta
-              ve solamente su propia información.
-            </span>
-          </div>
-        </div>
-
-        <div className="[perspective:1600px]">
-          <div className="relative">
-            <div
-              aria-hidden
-              className="absolute -inset-6 -z-10 rounded-[2rem] bg-primary/20 blur-3xl"
-            />
-            <DashboardPreview className="w-full origin-center transition-transform duration-500 lg:[transform:rotateY(-9deg)_rotateX(3deg)] lg:hover:[transform:rotateY(-4deg)_rotateX(1deg)] motion-reduce:transition-none" />
-          </div>
         </div>
       </div>
 
-      <dl className="mt-14 grid gap-6 border-t pt-8 sm:grid-cols-2 lg:grid-cols-4">
+      <div className="mt-12 md:mt-16">
+        <p className="eyebrow mb-3 text-muted-foreground">
+          Así se ve · datos de ejemplo, tocá y mové el mouse
+        </p>
+        <DashboardPreview />
+      </div>
+
+      <div className="mt-6 flex items-start gap-2.5 rounded-2xl bg-card px-4 py-3 text-sm text-muted-foreground ring-1 ring-foreground/8">
+        <ShieldCheck className="mt-0.5 size-4 shrink-0 text-primary" />
+        <span>
+          Nunca te pedimos acceso al banco ni a tus tarjetas. Cada cuenta ve
+          solamente su propia información.
+        </span>
+      </div>
+
+      <dl className="mt-10 grid gap-6 border-t border-foreground/10 pt-8 sm:grid-cols-2 lg:grid-cols-4">
         {FACTS.map((fact) => (
           <div key={fact.label} className="flex flex-col gap-1">
-            <dt className="text-xs text-muted-foreground">{fact.label}</dt>
-            <dd className="text-sm font-medium">{fact.value}</dd>
+            <dt className="eyebrow text-muted-foreground">{fact.label}</dt>
+            <dd className="text-sm font-semibold">{fact.value}</dd>
           </div>
         ))}
       </dl>

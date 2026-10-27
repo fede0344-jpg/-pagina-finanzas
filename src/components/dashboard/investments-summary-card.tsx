@@ -1,6 +1,5 @@
 import Link from "next/link";
-import { TrendingUp, TrendingDown } from "lucide-react";
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
+import { ArrowRight, TrendingDown, TrendingUp } from "lucide-react";
 import { cn } from "@/lib/utils";
 import type { Asset } from "@/lib/types/domain";
 import type { AssetMarketData } from "@/lib/market-data/types";
@@ -8,34 +7,38 @@ import type { AssetMarketData } from "@/lib/market-data/types";
 function ChangeRow({
   asset,
   changePercent,
-  positive,
+  label,
 }: {
   asset: Asset;
   changePercent: number;
-  positive: boolean;
+  label: string;
 }) {
+  const positive = changePercent >= 0;
   return (
     <div
       className={cn(
-        "flex items-center justify-between rounded-md px-3 py-2",
-        positive ? "bg-positive/10" : "bg-negative/10",
+        "flex items-center justify-between gap-3 rounded-2xl px-4 py-3",
+        positive ? "bg-positive/12" : "bg-negative/12",
       )}
     >
-      <div className="flex items-center gap-2">
+      <div className="flex min-w-0 items-center gap-3">
         {positive ? (
-          <TrendingUp className="size-4 text-positive" />
+          <TrendingUp className="size-4 shrink-0 text-positive" />
         ) : (
-          <TrendingDown className="size-4 text-negative" />
+          <TrendingDown className="size-4 shrink-0 text-negative" />
         )}
-        <span className="text-sm font-medium">{asset.name}</span>
+        <div className="min-w-0">
+          <p className="truncate text-sm font-bold">{asset.name}</p>
+          <p className="font-mono text-[11px] text-muted-foreground">{label}</p>
+        </div>
       </div>
       <span
         className={cn(
-          "text-sm font-medium tabular-nums",
+          "shrink-0 text-sm font-bold tabular-nums",
           positive ? "text-positive" : "text-negative",
         )}
       >
-        {changePercent >= 0 ? "+" : ""}
+        {positive ? "+" : ""}
         {changePercent.toFixed(2)}%
       </span>
     </div>
@@ -48,33 +51,18 @@ export function InvestmentsSummaryCard({
   items: { asset: Asset; data: AssetMarketData }[];
 }) {
   const withQuote = items.filter(
-    (item): item is { asset: Asset; data: AssetMarketData & { quote: NonNullable<AssetMarketData["quote"]> } } =>
-      item.data.quote !== null,
+    (
+      item,
+    ): item is {
+      asset: Asset;
+      data: AssetMarketData & {
+        quote: NonNullable<AssetMarketData["quote"]>;
+      };
+    } => item.data.quote !== null,
   );
 
   const counts = { bajo: 0, medio: 0, alto: 0 };
   for (const item of items) counts[item.asset.risk_level]++;
-
-  if (withQuote.length === 0) {
-    return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="text-base">Inversiones</CardTitle>
-        </CardHeader>
-        <CardContent className="flex flex-col gap-2">
-          <p className="text-sm text-muted-foreground">
-            Todavía no tenés activos cargados.
-          </p>
-          <Link
-            href="/inversiones"
-            className="w-fit text-sm text-primary underline underline-offset-4"
-          >
-            Ir a Inversiones
-          </Link>
-        </CardContent>
-      </Card>
-    );
-  }
 
   const sorted = [...withQuote].sort(
     (a, b) => b.data.quote.changePercent - a.data.quote.changePercent,
@@ -83,36 +71,45 @@ export function InvestmentsSummaryCard({
   const worst = sorted[sorted.length - 1];
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="text-base">Inversiones</CardTitle>
-      </CardHeader>
-      <CardContent className="flex flex-col gap-4">
-        <p className="text-sm text-muted-foreground">
-          {counts.bajo} riesgo bajo · {counts.medio} riesgo medio · {counts.alto}{" "}
-          riesgo alto
-        </p>
+    <section
+      className="tile tile-sol tilt flex flex-col justify-between gap-5 lg:col-span-5"
+      style={{ "--i": 7 } as React.CSSProperties}
+    >
+      <div className="flex flex-col gap-2">
+        <span className="eyebrow">Inversiones</span>
+        {withQuote.length === 0 ? (
+          <p className="text-sm">Todavía no tenés activos cargados.</p>
+        ) : (
+          <p className="font-mono text-xs opacity-70">
+            {counts.bajo} riesgo bajo · {counts.medio} medio · {counts.alto} alto
+          </p>
+        )}
+      </div>
+
+      {withQuote.length > 0 ? (
         <div className="flex flex-col gap-2">
           <ChangeRow
             asset={best.asset}
             changePercent={best.data.quote.changePercent}
-            positive={best.data.quote.changePercent >= 0}
+            label="Mejor del día"
           />
           {worst.asset.id !== best.asset.id ? (
             <ChangeRow
               asset={worst.asset}
               changePercent={worst.data.quote.changePercent}
-              positive={worst.data.quote.changePercent >= 0}
+              label="Peor del día"
             />
           ) : null}
         </div>
-        <Link
-          href="/inversiones"
-          className="w-fit text-sm text-primary underline underline-offset-4"
-        >
-          Ver todas mis inversiones
-        </Link>
-      </CardContent>
-    </Card>
+      ) : null}
+
+      <Link
+        href="/inversiones"
+        className="group inline-flex w-fit items-center gap-2 rounded-full bg-ink px-4 py-2.5 text-sm font-bold text-on-ink"
+      >
+        Ver mis inversiones
+        <ArrowRight className="size-4 transition-transform group-hover:translate-x-0.5" />
+      </Link>
+    </section>
   );
 }
