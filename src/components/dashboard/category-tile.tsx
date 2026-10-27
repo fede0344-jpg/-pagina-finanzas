@@ -1,4 +1,5 @@
 import { formatARS } from "@/lib/utils/format";
+import { Money } from "@/components/privacy/money";
 
 interface ExpenseByCategory {
   id: string;
@@ -33,7 +34,7 @@ export function CategoryTile({ data }: { data: ExpenseByCategory[] }) {
                 <div className="flex items-baseline justify-between gap-3 text-sm">
                   <span className="truncate font-semibold">{d.name}</span>
                   <span className="shrink-0 font-mono text-xs text-muted-foreground">
-                    {pct.toFixed(0)}% · {formatARS(d.amount)}
+                    {pct.toFixed(0)}% · <Money>{formatARS(d.amount)}</Money>
                   </span>
                 </div>
                 <div className="h-3 overflow-hidden rounded-full bg-foreground/8">

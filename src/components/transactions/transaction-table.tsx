@@ -12,6 +12,7 @@ import { DeleteTransactionButton } from "./delete-transaction-button";
 import { formatARS, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import type { Category, TransactionWithCategory } from "@/lib/types/domain";
+import { Money } from "@/components/privacy/money";
 
 export function TransactionTable({
   transactions,
@@ -79,7 +80,7 @@ export function TransactionTable({
                 )}
               >
                 {t.type === "income" ? "+" : "-"}
-                {formatARS(t.amount)}
+                <Money>{formatARS(t.amount)}</Money>
               </TableCell>
               <TableCell>
                 <div className="flex justify-end gap-1">

@@ -1,4 +1,5 @@
 import { formatARSWhole } from "@/lib/utils/format";
+import { Money } from "@/components/privacy/money";
 import { Odometer } from "./odometer";
 import { TrendCurve } from "./trend-curve";
 
@@ -29,7 +30,9 @@ export function BalanceTile({
       </div>
 
       <div className="parallax relative z-[2]">
-        <Odometer text={formatARSWhole(balance)} />
+        <Money mask={<Odometer text="$ ••••••" />}>
+          <Odometer text={formatARSWhole(balance)} />
+        </Money>
         <p className="mt-3 max-w-sm text-sm text-muted-foreground">
           Todo lo que ingresó menos todo lo que gastaste, desde que empezaste a
           cargar movimientos.

@@ -1,4 +1,5 @@
 import { ArrowDownLeft, ArrowUpRight, PiggyBank } from "lucide-react";
+import { Money } from "@/components/privacy/money";
 import { AnimatedAmount } from "./animated-amount";
 import { cn } from "@/lib/utils";
 
@@ -47,7 +48,9 @@ export function StatTile({
       </div>
       <div>
         <p className="display num text-[clamp(1.5rem,9cqw,2.4rem)] leading-none">
-          <AnimatedAmount amount={amount} currency="ars" />
+          <Money>
+            <AnimatedAmount amount={amount} currency="ars" />
+          </Money>
         </p>
         {hint ? (
           <p className="mt-2 text-sm font-semibold opacity-70">{hint}</p>

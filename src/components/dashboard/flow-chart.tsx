@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { cn } from "@/lib/utils";
+import { Money } from "@/components/privacy/money";
 import { formatARSWhole as formatARS, formatCompactARS } from "@/lib/utils/format";
 
 interface MonthlyPoint {
@@ -105,15 +106,15 @@ export function FlowChart({ data }: { data: MonthlyPoint[] }) {
             <span className="uppercase">
               {monthName(shown.month)} {shown.month.slice(0, 4)}
             </span>
-            <Key color="var(--green)">{formatARS(shown.ingresos)}</Key>
-            <Key color="var(--red)">{formatARS(shown.gastos)}</Key>
-            <span>Quedó {formatARS(shown.ingresos - shown.gastos)}</span>
+            <Key color="var(--green)"><Money>{formatARS(shown.ingresos)}</Money></Key>
+            <Key color="var(--red)"><Money>{formatARS(shown.gastos)}</Money></Key>
+            <span>Quedó <Money>{formatARS(shown.ingresos - shown.gastos)}</Money></span>
           </>
         ) : (
           <>
-            <Key color="var(--green)">Ingresos {formatARS(totalIn)}</Key>
-            <Key color="var(--red)">Gastos {formatARS(totalOut)}</Key>
-            <span>Quedó {formatARS(totalIn - totalOut)}</span>
+            <Key color="var(--green)">Ingresos <Money>{formatARS(totalIn)}</Money></Key>
+            <Key color="var(--red)">Gastos <Money>{formatARS(totalOut)}</Money></Key>
+            <span>Quedó <Money>{formatARS(totalIn - totalOut)}</Money></span>
           </>
         )}
       </p>
@@ -132,7 +133,7 @@ export function FlowChart({ data }: { data: MonthlyPoint[] }) {
               style={{ bottom: `${p}%` }}
             >
               <span className="absolute right-0 bottom-0.5 font-mono text-[10px] opacity-60">
-                {formatCompactARS((max * p) / 100)}
+                <Money>{formatCompactARS((max * p) / 100)}</Money>
               </span>
             </div>
           ))}

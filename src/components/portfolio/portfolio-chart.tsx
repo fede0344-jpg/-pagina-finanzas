@@ -2,6 +2,7 @@
 
 import { Cell, Pie, PieChart, ResponsiveContainer, Tooltip } from "recharts";
 import type { TooltipContentProps } from "recharts";
+import { Money } from "@/components/privacy/money";
 import {
   formatMoney,
   formatPercent,
@@ -24,7 +25,7 @@ function SliceTooltip({ active, payload }: TooltipContentProps) {
         <span className="font-medium">{slice.position.name}</span>
       </div>
       <p className="mt-1 tabular-nums text-muted-foreground">
-        {formatMoney(slice.value, slice.currency)} ·{" "}
+        <Money>{formatMoney(slice.value, slice.currency)}</Money> ·{" "}
         <span className="font-medium text-foreground">
           {formatPercent(slice.percent)}
         </span>
@@ -81,7 +82,7 @@ export function PortfolioChart({
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
         <span className="eyebrow text-muted-foreground">Total</span>
         <span className="display num text-2xl">
-          {formatMoney(total, currency)}
+          <Money>{formatMoney(total, currency)}</Money>
         </span>
       </div>
     </div>

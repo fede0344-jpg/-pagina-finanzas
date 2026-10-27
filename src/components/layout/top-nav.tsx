@@ -5,6 +5,7 @@ import { usePathname } from "next/navigation";
 import { cn } from "@/lib/utils";
 import { Logo } from "@/components/logo";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { PrivacyToggle } from "@/components/privacy/privacy-toggle";
 import { NAV_ITEMS } from "./nav-items";
 import { UserMenu } from "./user-menu";
 
@@ -40,6 +41,7 @@ export function TopNav({ email }: { email: string }) {
         </nav>
 
         <div className="ml-auto flex items-center gap-2">
+          <PrivacyToggle />
           <ThemeToggle />
           <UserMenu email={email} />
         </div>

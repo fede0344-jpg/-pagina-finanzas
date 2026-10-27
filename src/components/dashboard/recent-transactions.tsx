@@ -3,6 +3,7 @@ import { TransactionFormDialog } from "@/components/transactions/transaction-for
 import { formatARS, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import type { Category, TransactionWithCategory } from "@/lib/types/domain";
+import { Money } from "@/components/privacy/money";
 
 export function RecentTransactions({
   transactions,
@@ -61,7 +62,7 @@ export function RecentTransactions({
                 )}
               >
                 {t.type === "income" ? "+" : "-"}
-                {formatARS(t.amount)}
+                <Money>{formatARS(t.amount)}</Money>
               </span>
             </li>
           ))}

@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { PieChart as PieChartIcon } from "lucide-react";
 import { Card, CardContent } from "@/components/ui/card";
+import { Money } from "@/components/privacy/money";
 import { PortfolioChart } from "./portfolio-chart";
 import { PositionFormDialog } from "./position-form-dialog";
 import { DeletePositionButton } from "./delete-position-button";
@@ -118,13 +119,15 @@ export function PortfolioView({
                       {slice.position.name}
                     </p>
                     <p className="font-mono text-xs text-muted-foreground tabular-nums">
-                      {formatMoney(
-                        slice.position.amount,
-                        slice.position.currency,
-                      )}
-                      {slice.position.currency !== currency
-                        ? ` ≈ ${formatMoney(slice.value, currency)}`
-                        : null}
+                      <Money>
+                        {formatMoney(
+                          slice.position.amount,
+                          slice.position.currency,
+                        )}
+                        {slice.position.currency !== currency
+                          ? ` ≈ ${formatMoney(slice.value, currency)}`
+                          : null}
+                      </Money>
                     </p>
                   </div>
                   <span className="display num w-20 text-right text-xl">
