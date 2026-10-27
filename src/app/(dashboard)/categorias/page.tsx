@@ -18,9 +18,7 @@ export default async function CategoriasPage() {
         description="Organizá tus ingresos y gastos por categoría."
         action={<CategoryFormDialog />}
       />
-      <div className="reveal">
-        <CategoryList categories={categories ?? []} />
-      </div>
+      <CategoryList categories={categories ?? []} />
     </div>
   );
 }

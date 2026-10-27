@@ -11,7 +11,7 @@ function SeriesTooltip({ active, payload }: TooltipContentProps) {
   const point = payload[0].payload as MarketSeriesPoint;
 
   return (
-    <div className="rounded-lg border bg-popover px-2.5 py-1.5 text-xs shadow-md">
+    <div className="rounded-xl border bg-popover px-2.5 py-1.5 text-xs shadow-md">
       <p className="text-muted-foreground">{point.date}</p>
       <p className="font-medium tabular-nums">{formatCurrency(point.close)}</p>
     </div>

@@ -11,9 +11,9 @@ export function RiskSection({
 }) {
   return (
     <section className="flex flex-col gap-3">
-      <h2 className="text-sm font-semibold text-muted-foreground">{title}</h2>
+      <h2 className="display text-2xl">{title}</h2>
       {items.length === 0 ? (
-        <div className="rounded-lg border border-dashed p-6 text-center text-sm text-muted-foreground">
+        <div className="tile py-10 text-center text-sm text-muted-foreground">
           Todavía no agregaste activos en este nivel de riesgo.
         </div>
       ) : (

@@ -22,9 +22,7 @@ export default async function PortafolioPage() {
         title="Portafolio"
         description="Cargá cuánto tenés en cada activo y mirá cómo se reparte tu plata."
       />
-      <div className="reveal">
-        <PortfolioView positions={positions ?? []} usdRate={mep?.venta ?? null} />
-      </div>
+      <PortfolioView positions={positions ?? []} usdRate={mep?.venta ?? null} />
     </div>
   );
 }

@@ -1,11 +1,11 @@
 import { smoothPath, type Point } from "@/lib/utils/smooth-path";
 
 const W = 420;
-const H = 210;
+const H = 160;
 const X0 = 8;
 const X1 = 400;
-const Y_BOTTOM = 200;
-const Y_TOP = 34;
+const Y_BOTTOM = 150;
+const Y_TOP = 24;
 
 /** Curva decorativa del balance acumulado: sube, baja o queda plana según tus datos. */
 export function TrendCurve({ values }: { values: number[] }) {
@@ -43,8 +43,8 @@ export function TrendCurve({ values }: { values: number[] }) {
           key={k}
           x1={X0}
           x2={X1 + 8}
-          y1={Y_BOTTOM - k * 56}
-          y2={Y_BOTTOM - k * 56}
+          y1={Y_BOTTOM - k * 42}
+          y2={Y_BOTTOM - k * 42}
           stroke="currentColor"
           strokeOpacity="0.16"
         />

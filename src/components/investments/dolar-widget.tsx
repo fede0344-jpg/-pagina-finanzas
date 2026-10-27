@@ -16,7 +16,7 @@ function CurrencyRow({
 
   return (
     <div className="flex flex-col gap-2 sm:flex-row sm:items-center sm:gap-4">
-      <div className="flex items-center gap-1.5 text-xs font-semibold text-muted-foreground sm:w-16 sm:shrink-0">
+      <div className="eyebrow flex items-center gap-1.5 text-muted-foreground sm:w-20 sm:shrink-0">
         {icon}
         {label}
       </div>
@@ -26,10 +26,10 @@ function CurrencyRow({
             key={`${rate.moneda}-${rate.casa}`}
             className="flex flex-col gap-0.5"
           >
-            <span className="text-xs text-muted-foreground">
+            <span className="font-mono text-xs text-muted-foreground">
               {rate.nombre}
             </span>
-            <span className="text-sm font-medium tabular-nums">
+            <span className="text-sm font-bold tabular-nums">
               {formatARS(rate.compra)}{" "}
               <span className="text-muted-foreground">/</span>{" "}
               {formatARS(rate.venta)}
@@ -48,7 +48,7 @@ export function DolarWidget({ rates }: { rates: DolarRate[] }) {
   const eurRates = rates.filter((rate) => rate.moneda === "EUR");
 
   return (
-    <Card>
+    <Card className="tile-sol border-0 bg-transparent">
       <CardContent className="flex flex-col gap-4">
         <CurrencyRow
           label="Dólar"

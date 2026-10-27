@@ -19,7 +19,7 @@ function timeAgo(pubDate: string): string | null {
 function NewsColumn({ title, items }: { title: string; items: NewsItem[] }) {
   return (
     <div className="flex flex-col gap-3">
-      <h3 className="text-sm font-semibold text-muted-foreground">{title}</h3>
+      <h3 className="eyebrow text-muted-foreground">{title}</h3>
       {items.length === 0 ? (
         <p className="text-sm text-muted-foreground">
           Sin noticias por ahora.
@@ -32,7 +32,7 @@ function NewsColumn({ title, items }: { title: string; items: NewsItem[] }) {
                 href={item.link}
                 target="_blank"
                 rel="noreferrer noopener"
-                className="text-sm font-medium leading-snug hover:underline"
+                className="text-sm font-semibold leading-snug hover:text-primary hover:underline"
               >
                 {item.title}
               </a>
@@ -57,7 +57,7 @@ export function NewsWidget({ items }: { items: NewsItem[] }) {
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">Noticias de economía</CardTitle>
+        <CardTitle className="display text-2xl">Noticias de economía</CardTitle>
       </CardHeader>
       <CardContent className="grid gap-6 sm:grid-cols-2">
         <NewsColumn title="Argentina" items={ar} />

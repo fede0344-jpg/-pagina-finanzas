@@ -9,7 +9,7 @@ export function ChartTooltipContent({
   if (!active || !payload || payload.length === 0) return null;
 
   return (
-    <div className="rounded-lg border bg-popover px-3 py-2 text-sm shadow-md">
+    <div className="rounded-xl border bg-popover px-3 py-2 text-sm shadow-md">
       {label ? (
         <p className="mb-1 text-xs text-muted-foreground">{label}</p>
       ) : null}

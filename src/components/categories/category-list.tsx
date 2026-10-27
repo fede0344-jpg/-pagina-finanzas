@@ -13,7 +13,7 @@ function CategoryGroup({
   return (
     <Card>
       <CardHeader>
-        <CardTitle className="text-base">{title}</CardTitle>
+        <CardTitle className="display text-2xl">{title}</CardTitle>
       </CardHeader>
       <CardContent className="flex flex-col gap-1">
         {categories.length === 0 ? (
@@ -24,13 +24,13 @@ function CategoryGroup({
           categories.map((category) => (
             <div
               key={category.id}
-              className="flex items-center gap-3 rounded-md px-2 py-2 hover:bg-muted/50"
+              className="flex items-center gap-3 rounded-xl px-2 py-2.5 hover:bg-muted"
             >
               <span
                 className="size-3 shrink-0 rounded-full"
                 style={{ backgroundColor: category.color }}
               />
-              <span className="flex-1 truncate text-sm">{category.name}</span>
+              <span className="flex-1 truncate text-sm font-semibold">{category.name}</span>
               <div className="flex items-center gap-1">
                 <CategoryFormDialog category={category} />
                 <DeleteCategoryButton

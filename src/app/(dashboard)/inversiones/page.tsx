@@ -19,9 +19,7 @@ export default async function InversionesPage() {
 
       <InvestmentsView initialItems={items} initialDolarRates={dolarRates} />
 
-      <div className="reveal">
-        <NewsWidget items={news} />
-      </div>
+      <NewsWidget items={news} />
 
       <p className="text-center text-xs text-muted-foreground">
         Cotizaciones de fuentes externas (CoinGecko, data912.com, dolarapi.com),

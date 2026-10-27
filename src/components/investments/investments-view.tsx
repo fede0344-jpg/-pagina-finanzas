@@ -51,7 +51,7 @@ export function InvestmentsView({
       <div className="flex flex-col gap-6">
         <DolarWidget rates={dolarRates} />
         <div className="flex items-center justify-between">
-          <p className="text-xs text-muted-foreground">
+          <p className="font-mono text-xs text-muted-foreground">
             {lastUpdated
               ? `Actualizado ${lastUpdated.toLocaleTimeString("es-AR")}`
               : "Cotizaciones en vivo"}

@@ -58,12 +58,10 @@ export default async function TransaccionesPage({
         action={<TransactionFormDialog categories={categories ?? []} />}
       />
       <TransactionFilters categories={categories ?? []} />
-      <div className="reveal">
-        <TransactionTable
-          transactions={(transactions ?? []) as TransactionWithCategory[]}
-          categories={categories ?? []}
-        />
-      </div>
+      <TransactionTable
+        transactions={(transactions ?? []) as TransactionWithCategory[]}
+        categories={categories ?? []}
+      />
     </div>
   );
 }

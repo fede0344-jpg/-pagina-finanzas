@@ -15,7 +15,7 @@ function SliceTooltip({ active, payload }: TooltipContentProps) {
   if (!active || !payload || payload.length === 0) return null;
   const slice = payload[0].payload as TooltipSlice;
   return (
-    <div className="rounded-lg border bg-popover px-3 py-2 text-sm shadow-md">
+    <div className="rounded-xl border bg-popover px-3 py-2 text-sm shadow-md">
       <div className="flex items-center gap-2">
         <span
           className="size-2.5 rounded-full"
@@ -79,8 +79,8 @@ export function PortfolioChart({
         </PieChart>
       </ResponsiveContainer>
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center text-center">
-        <span className="text-xs text-muted-foreground">Total</span>
-        <span className="font-display text-2xl font-semibold tabular-nums">
+        <span className="eyebrow text-muted-foreground">Total</span>
+        <span className="display num text-2xl">
           {formatMoney(total, currency)}
         </span>
       </div>

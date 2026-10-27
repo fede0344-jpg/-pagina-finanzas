@@ -40,11 +40,11 @@ export function TransactionFilters({
   const hasFilters = Boolean(month || type || categoryId);
 
   return (
-    <div className="flex flex-wrap items-end gap-3">
+    <div className="flex flex-wrap items-end gap-3 rounded-3xl bg-card p-4 ring-1 ring-foreground/8">
       <div className="flex flex-col gap-1.5">
         <label
           htmlFor="month-filter"
-          className="text-xs text-muted-foreground"
+          className="eyebrow text-muted-foreground"
         >
           Mes
         </label>
@@ -58,7 +58,7 @@ export function TransactionFilters({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs text-muted-foreground">Tipo</span>
+        <span className="eyebrow text-muted-foreground">Tipo</span>
         <Select
           value={type || null}
           onValueChange={(value) => {
@@ -83,7 +83,7 @@ export function TransactionFilters({
       </div>
 
       <div className="flex flex-col gap-1.5">
-        <span className="text-xs text-muted-foreground">Categoría</span>
+        <span className="eyebrow text-muted-foreground">Categoría</span>
         <Select
           value={categoryId || null}
           onValueChange={(value) => pushParams({ category_id: value })}

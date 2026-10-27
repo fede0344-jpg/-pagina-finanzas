@@ -57,17 +57,17 @@ export function AssetCard({
   }
 
   return (
-    <Card className="transition-all duration-200 hover:-translate-y-0.5 hover:ring-primary/25 motion-reduce:transition-none motion-reduce:hover:translate-y-0">
+    <Card>
       <CardContent className="flex flex-col gap-3">
         <div className="flex items-start justify-between gap-2">
           <div>
-            <p className="font-medium">{asset.name}</p>
-            <p className="text-xs text-muted-foreground uppercase">
+            <p className="display text-lg leading-tight">{asset.name}</p>
+            <p className="font-mono text-xs text-muted-foreground uppercase">
               {asset.symbol}
             </p>
             <span
               className={cn(
-                "mt-1.5 inline-block rounded-full border px-1.5 py-0.5 text-[10px] font-medium",
+                "mt-2 inline-block rounded-full border px-2.5 py-0.5 text-[10px] font-bold",
                 RISK_CLASS[asset.risk_level],
               )}
             >
@@ -84,7 +84,7 @@ export function AssetCard({
         {data.quote ? (
           <>
             <div className="flex items-end justify-between gap-2">
-              <span className="text-xl font-semibold tabular-nums">
+              <span className="display num text-2xl">
                 {formatPrice(data.quote.price)}
               </span>
               <div className="flex flex-col items-end gap-0.5">
@@ -130,9 +130,9 @@ export function AssetCard({
                   onClick={() => handleRangeChange(r.value)}
                   disabled={isPending}
                   className={cn(
-                    "rounded px-1.5 py-0.5 text-[11px] font-medium",
+                    "rounded-full px-2.5 py-1 text-[11px] font-bold",
                     range === r.value
-                      ? "bg-muted text-foreground"
+                      ? "bg-ink text-on-ink"
                       : "text-muted-foreground hover:text-foreground",
                   )}
                 >

@@ -8,9 +8,7 @@ export default function CalculadoraPage() {
         title="Calculadoras"
         description="Estimá el crecimiento de una inversión con aportes constantes, o proyectá el rendimiento a partir de un precio objetivo."
       />
-      <div className="reveal">
-        <CalculatorTabs />
-      </div>
+      <CalculatorTabs />
     </div>
   );
 }

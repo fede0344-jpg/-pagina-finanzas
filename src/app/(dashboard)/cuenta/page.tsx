@@ -20,13 +20,11 @@ export default async function CuentaPage() {
         </CardContent>
       </Card>
 
-      <div className="reveal">
-        <PasswordForm
+      <PasswordForm
           title="Cambiar contraseña"
           description="Elegí una contraseña nueva para entrar a tu cuenta."
           submitLabel="Cambiar contraseña"
         />
-      </div>
     </div>
   );
 }

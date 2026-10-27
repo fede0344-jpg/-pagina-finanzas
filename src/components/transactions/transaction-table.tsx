@@ -9,7 +9,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { TransactionFormDialog } from "./transaction-form-dialog";
 import { DeleteTransactionButton } from "./delete-transaction-button";
-import { formatCurrency, formatDate } from "@/lib/utils/format";
+import { formatARS, formatDate } from "@/lib/utils/format";
 import { cn } from "@/lib/utils";
 import type { Category, TransactionWithCategory } from "@/lib/types/domain";
 
@@ -22,14 +22,14 @@ export function TransactionTable({
 }) {
   if (transactions.length === 0) {
     return (
-      <div className="rounded-lg border border-dashed p-10 text-center text-sm text-muted-foreground">
+      <div className="tile py-12 text-center text-sm text-muted-foreground">
         No hay transacciones para los filtros seleccionados.
       </div>
     );
   }
 
   return (
-    <div className="rounded-lg border">
+    <div className="tile p-2 sm:p-4">
       <Table>
         <TableHeader>
           <TableRow>
@@ -74,12 +74,12 @@ export function TransactionTable({
               </TableCell>
               <TableCell
                 className={cn(
-                  "text-right font-medium tabular-nums",
+                  "text-right font-bold tabular-nums",
                   t.type === "income" ? "text-positive" : "text-negative",
                 )}
               >
                 {t.type === "income" ? "+" : "-"}
-                {formatCurrency(t.amount)}
+                {formatARS(t.amount)}
               </TableCell>
               <TableCell>
                 <div className="flex justify-end gap-1">

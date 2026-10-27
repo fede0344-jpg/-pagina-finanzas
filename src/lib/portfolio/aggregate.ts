@@ -4,9 +4,9 @@ import type { PortfolioPosition } from "@/lib/types/domain";
 // Un color fijo por activo (según el orden en que se cargó), así no cambia
 // cuando editás montos y el orden de la torta se reacomoda.
 export const PORTFOLIO_COLORS = [
-  "#3b82f6",
+  "#2f5bff",
   "#f97316",
-  "#22c55e",
+  "#16a36d",
   "#8b5cf6",
   "#06b6d4",
   "#ec4899",

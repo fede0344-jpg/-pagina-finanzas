@@ -17,7 +17,7 @@ export default async function Image() {
           justifyContent: "center",
           gap: 28,
           background:
-            "linear-gradient(135deg, #0b1220 0%, #101a30 55%, #0e1a15 100%)",
+            "linear-gradient(135deg, #060a14 0%, #0b1330 60%, #14246b 100%)",
           fontFamily: "sans-serif",
         }}
       >
@@ -27,7 +27,7 @@ export default async function Image() {
               width: 88,
               height: 88,
               borderRadius: 22,
-              background: "#3357b0",
+              background: "#2f5bff",
               display: "flex",
             }}
           />

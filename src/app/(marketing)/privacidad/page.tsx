@@ -2,15 +2,15 @@ export const metadata = { title: "Política de Privacidad" };
 
 export default function PrivacidadPage() {
   return (
-    <div className="mx-auto max-w-2xl px-4 py-16">
-      <h1 className="text-3xl font-semibold tracking-tight">
+    <div className="mx-auto w-full max-w-2xl px-4 py-16">
+      <h1 className="display text-4xl leading-tight sm:text-5xl">
         Política de Privacidad
       </h1>
       <p className="mt-2 text-sm text-muted-foreground">
         Última actualización: 6 de agosto de 2026
       </p>
 
-      <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-foreground [&_h2]:mt-4 [&_h2]:text-lg [&_h2]:font-semibold [&_p]:text-muted-foreground">
+      <div className="mt-8 flex flex-col gap-6 text-sm leading-relaxed text-foreground [&_h2]:mt-4 [&_h2]:text-xl [&_h2]:font-bold [&_p]:text-muted-foreground">
         <p>
           Financitas es un proyecto personal e independiente. Esta página
           explica, en lenguaje simple, qué datos recolectamos y qué hacemos

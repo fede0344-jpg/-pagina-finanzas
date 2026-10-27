@@ -16,7 +16,7 @@ export function CalculatorTabs() {
 
   return (
     <div className="flex flex-col gap-6">
-      <div className="flex gap-2">
+      <div className="inline-flex w-fit max-w-full flex-wrap gap-1 rounded-3xl bg-card p-1 ring-1 ring-foreground/8">
         {TABS.map((t) => (
           <button
             key={t.value}
@@ -24,8 +24,8 @@ export function CalculatorTabs() {
             onClick={() => setTab(t.value)}
             className={
               tab === t.value
-                ? "rounded-md border border-primary bg-primary/10 px-3 py-2 text-sm font-medium text-primary"
-                : "rounded-md border px-3 py-2 text-sm font-medium text-muted-foreground hover:bg-muted hover:text-foreground"
+                ? "rounded-full bg-ink px-4 py-2 text-sm font-bold text-on-ink"
+                : "rounded-full px-4 py-2 text-sm font-bold text-muted-foreground transition-colors hover:text-foreground"
             }
           >
             {t.label}
