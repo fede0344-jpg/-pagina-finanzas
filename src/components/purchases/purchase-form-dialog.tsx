@@ -23,7 +23,7 @@ import type { Asset } from "@/lib/types/domain";
 import type { AssetType } from "@/lib/types/database.types";
 
 const ASSET_TYPES: { value: AssetType; label: string; placeholder: string }[] = [
-  { value: "crypto", label: "Cripto", placeholder: "ej: bitcoin, ethereum" },
+  { value: "crypto", label: "Cripto", placeholder: "ej: BTC, ETH, solana" },
   { value: "cedear", label: "CEDEAR", placeholder: "ej: AAPL, TSLA" },
   { value: "accion_arg", label: "Acción arg.", placeholder: "ej: GGAL, YPFD" },
   { value: "bono_arg", label: "Bono arg.", placeholder: "ej: AL30, GD30" },
@@ -160,7 +160,7 @@ export function PurchaseFormDialog({
           </div>
           <p className="-mt-2 text-xs text-muted-foreground">
             {assetType === "crypto"
-              ? "En cripto usá el id de CoinGecko (en minúscula), no el ticker."
+              ? "En cripto podés escribir el ticker (BTC, ETH, SOL…) o el id de CoinGecko (bitcoin)."
               : "Usá el ticker tal cual cotiza en BYMA."}
           </p>
 

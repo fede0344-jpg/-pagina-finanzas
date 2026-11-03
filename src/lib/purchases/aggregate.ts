@@ -1,3 +1,4 @@
+import { normalizeCryptoSymbol } from "@/lib/market-data/crypto-ids";
 import type { Purchase } from "@/lib/types/domain";
 
 export type PurchaseCurrency = "USD" | "ARS";
@@ -36,7 +37,11 @@ export interface CurrencyTotals {
 }
 
 export function groupKey(p: Pick<Purchase, "asset_type" | "symbol">) {
-  return `${p.asset_type}:${p.symbol.toLowerCase()}`;
+  const symbol =
+    p.asset_type === "crypto"
+      ? normalizeCryptoSymbol(p.symbol)
+      : p.symbol.toLowerCase();
+  return `${p.asset_type}:${symbol}`;
 }
 
 /**

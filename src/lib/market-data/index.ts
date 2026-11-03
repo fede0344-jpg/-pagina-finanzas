@@ -9,6 +9,7 @@ import {
   getData912History,
   getData912PriceOnDate,
 } from "./data912";
+import { normalizeCryptoSymbol } from "./crypto-ids";
 import type { AssetType } from "@/lib/types/database.types";
 import type { AssetMarketData, HistoryRange, MarketSeriesPoint } from "./types";
 
@@ -37,13 +38,20 @@ const CRYPTO_MAX_DAYS = 365;
 
 type AssetRef = { asset_type: AssetType; symbol: string };
 
+// En cripto aceptamos el ticker (BTC) o el id de CoinGecko (bitcoin).
+function marketSymbol(asset: AssetRef): string {
+  return asset.asset_type === "crypto"
+    ? normalizeCryptoSymbol(asset.symbol)
+    : asset.symbol;
+}
+
 export async function getAssetHistory(
   asset: AssetRef,
   range: HistoryRange = "1A",
 ): Promise<MarketSeriesPoint[]> {
   if (asset.asset_type === "crypto") {
     return getCoinGeckoHistory(
-      asset.symbol,
+      marketSymbol(asset),
       range === "todo" ? CRYPTO_MAX_DAYS : RANGE_DAYS[range],
     );
   }
@@ -60,7 +68,7 @@ export async function getAssetMarketData(
 ): Promise<AssetMarketData> {
   const quotePromise =
     asset.asset_type === "crypto"
-      ? getCoinGeckoQuote(asset.symbol)
+      ? getCoinGeckoQuote(marketSymbol(asset))
       : getData912Quote(asset.asset_type, asset.symbol);
 
   const [quote, series] = await Promise.all([
@@ -74,7 +82,7 @@ export async function getAssetMarketData(
 export async function getAssetPrice(asset: AssetRef): Promise<number | null> {
   const quote =
     asset.asset_type === "crypto"
-      ? await getCoinGeckoQuote(asset.symbol)
+      ? await getCoinGeckoQuote(marketSymbol(asset))
       : await getData912Quote(asset.asset_type, asset.symbol);
   return quote?.price ?? null;
 }
@@ -88,6 +96,6 @@ export async function getAssetPriceOnDate(
     return getAssetPrice(asset);
   }
   return asset.asset_type === "crypto"
-    ? getCoinGeckoPriceOnDate(asset.symbol, isoDate)
+    ? getCoinGeckoPriceOnDate(marketSymbol(asset), isoDate)
     : getData912PriceOnDate(asset.asset_type, asset.symbol, isoDate);
 }

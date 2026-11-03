@@ -85,3 +85,38 @@ export async function getCoinGeckoPriceOnDate(
     return null;
   }
 }
+
+// Busca el id de CoinGecko de una moneda a partir de un ticker o nombre
+// ("avax", "Chainlink"). Se queda con la coincidencia más grande por
+// capitalización. Null si no encuentra nada.
+export async function searchCoinGeckoId(query: string): Promise<string | null> {
+  try {
+    const res = await fetch(
+      `${BASE_URL}/search?query=${encodeURIComponent(query)}`,
+      { next: { revalidate: 86_400 } },
+    );
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const coins: {
+      id: string;
+      symbol: string;
+      name: string;
+      market_cap_rank: number | null;
+    }[] = data?.coins ?? [];
+
+    const q = query.trim().toLowerCase();
+    const exact = coins.filter(
+      (c) => c.symbol.toLowerCase() === q || c.name.toLowerCase() === q,
+    );
+    const pool = exact.length > 0 ? exact : coins;
+    pool.sort(
+      (a, b) =>
+        (a.market_cap_rank ?? Number.MAX_SAFE_INTEGER) -
+        (b.market_cap_rank ?? Number.MAX_SAFE_INTEGER),
+    );
+    return pool[0]?.id ?? null;
+  } catch {
+    return null;
+  }
+}
