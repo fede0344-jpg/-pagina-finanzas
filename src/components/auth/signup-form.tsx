@@ -7,6 +7,7 @@ import { signUp } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleButton } from "./google-button";
 import {
   Card,
   CardContent,
@@ -51,6 +52,7 @@ export function SignupForm() {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleButton />
         <form action={formAction} className="flex flex-col gap-4">
           <div className="flex flex-col gap-2">
             <Label htmlFor="email">Email</Label>
