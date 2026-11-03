@@ -7,6 +7,7 @@ import { signIn } from "@/lib/actions/auth";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { GoogleButton } from "./google-button";
 import {
   Card,
   CardContent,
@@ -24,7 +25,13 @@ function SubmitButton() {
   );
 }
 
-export function LoginForm({ next }: { next?: string }) {
+export function LoginForm({
+  next,
+  googleError,
+}: {
+  next?: string;
+  googleError?: boolean;
+}) {
   const [state, formAction] = useActionState(signIn, null);
 
   return (
@@ -36,6 +43,13 @@ export function LoginForm({ next }: { next?: string }) {
         </CardDescription>
       </CardHeader>
       <CardContent>
+        <GoogleButton next={next} />
+        {googleError ? (
+          <p role="alert" className="mb-4 text-sm text-negative">
+            No pudimos iniciar sesión con Google. Probá de nuevo o entrá con tu
+            email.
+          </p>
+        ) : null}
         <form action={formAction} className="flex flex-col gap-4">
           {next ? <input type="hidden" name="next" value={next} /> : null}
           <div className="flex flex-col gap-2">

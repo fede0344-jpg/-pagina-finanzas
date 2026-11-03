@@ -118,3 +118,23 @@ export async function signOut() {
   await supabase.auth.signOut();
   redirect("/login");
 }
+
+// Inicio de sesión con Google. Supabase devuelve la URL de Google a la que hay
+// que mandar a la persona; al volver, /auth/confirm canjea el código por la
+// sesión. Si el proveedor no está activado en Supabase, vuelve con un error.
+export async function signInWithGoogle(formData: FormData) {
+  const nextParam = String(formData.get("next") ?? "/dashboard");
+  const next = nextParam.startsWith("/") ? nextParam : "/dashboard";
+
+  const origin = await siteOrigin();
+  const supabase = await createClient();
+  const { data, error } = await supabase.auth.signInWithOAuth({
+    provider: "google",
+    options: {
+      redirectTo: `${origin}/auth/confirm?next=${encodeURIComponent(next)}`,
+    },
+  });
+
+  if (error || !data.url) redirect("/login?error=google");
+  redirect(data.url);
+}
