@@ -1,6 +1,14 @@
 import "server-only";
-import { getCoinGeckoQuote, getCoinGeckoHistory } from "./coingecko";
-import { getData912Quote, getData912History } from "./data912";
+import {
+  getCoinGeckoQuote,
+  getCoinGeckoHistory,
+  getCoinGeckoPriceOnDate,
+} from "./coingecko";
+import {
+  getData912Quote,
+  getData912History,
+  getData912PriceOnDate,
+} from "./data912";
 import type { AssetType } from "@/lib/types/database.types";
 import type { AssetMarketData, HistoryRange, MarketSeriesPoint } from "./types";
 
@@ -60,4 +68,26 @@ export async function getAssetMarketData(
     getAssetHistory(asset, range),
   ]);
   return { quote, series };
+}
+
+/** Precio actual (cripto en USD; el resto en pesos). */
+export async function getAssetPrice(asset: AssetRef): Promise<number | null> {
+  const quote =
+    asset.asset_type === "crypto"
+      ? await getCoinGeckoQuote(asset.symbol)
+      : await getData912Quote(asset.asset_type, asset.symbol);
+  return quote?.price ?? null;
+}
+
+/** Precio de cierre en una fecha pasada; si la fecha es hoy, el precio actual. */
+export async function getAssetPriceOnDate(
+  asset: AssetRef,
+  isoDate: string,
+): Promise<number | null> {
+  if (isoDate >= new Date().toISOString().slice(0, 10)) {
+    return getAssetPrice(asset);
+  }
+  return asset.asset_type === "crypto"
+    ? getCoinGeckoPriceOnDate(asset.symbol, isoDate)
+    : getData912PriceOnDate(asset.asset_type, asset.symbol, isoDate);
 }

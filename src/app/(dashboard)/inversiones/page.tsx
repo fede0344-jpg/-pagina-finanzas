@@ -3,6 +3,7 @@ import { getEconomicNews } from "@/lib/market-data/news";
 import { InvestmentsView } from "@/components/investments/investments-view";
 import { NewsWidget } from "@/components/investments/news-widget";
 import { PageHeader } from "@/components/layout/page-header";
+import { InvestmentsTabs } from "@/components/investments/investments-tabs";
 
 export default async function InversionesPage() {
   const [{ items, dolarRates }, news] = await Promise.all([
@@ -16,6 +17,8 @@ export default async function InversionesPage() {
         title="Inversiones"
         description="Tus activos agrupados por nivel de riesgo. El precio se actualiza solo cada un minuto."
       />
+
+      <InvestmentsTabs active="/inversiones" />
 
       <InvestmentsView initialItems={items} initialDolarRates={dolarRates} />
 

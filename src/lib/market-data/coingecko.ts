@@ -63,3 +63,25 @@ export async function getCoinGeckoHistory(
     return [];
   }
 }
+
+// Precio de cierre de un día puntual (USD). El plan público solo permite
+// consultar el último año; antes de eso devuelve error y queda en null.
+export async function getCoinGeckoPriceOnDate(
+  id: string,
+  isoDate: string,
+): Promise<number | null> {
+  try {
+    const [year, month, day] = isoDate.split("-");
+    const res = await fetch(
+      `${BASE_URL}/coins/${encodeURIComponent(id)}/history?date=${day}-${month}-${year}&localization=false`,
+      { next: { revalidate: 86_400 } },
+    );
+    if (!res.ok) return null;
+
+    const data = await res.json();
+    const price = data?.market_data?.current_price?.usd;
+    return typeof price === "number" ? price : null;
+  } catch {
+    return null;
+  }
+}

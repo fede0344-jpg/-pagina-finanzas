@@ -137,6 +137,45 @@ export interface Database {
         };
         Relationships: [];
       };
+      purchases: {
+        Row: {
+          id: string;
+          user_id: string;
+          asset_type: AssetType;
+          symbol: string;
+          name: string;
+          purchase_date: string;
+          invested: number;
+          buy_price: number;
+          quantity: number;
+          created_at: string;
+        };
+        Insert: {
+          id?: string;
+          user_id?: string;
+          asset_type: AssetType;
+          symbol: string;
+          name: string;
+          purchase_date: string;
+          invested: number;
+          buy_price: number;
+          quantity: number;
+          created_at?: string;
+        };
+        Update: {
+          id?: string;
+          user_id?: string;
+          asset_type?: AssetType;
+          symbol?: string;
+          name?: string;
+          purchase_date?: string;
+          invested?: number;
+          buy_price?: number;
+          quantity?: number;
+          created_at?: string;
+        };
+        Relationships: [];
+      };
     };
     Views: Record<string, never>;
     Functions: Record<string, never>;

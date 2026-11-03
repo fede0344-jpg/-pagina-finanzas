@@ -74,3 +74,19 @@ export async function getData912History(
     return [];
   }
 }
+
+// Último cierre en o antes de la fecha (si cae fin de semana o feriado, toma
+// la rueda anterior). Null si no hay datos de esa época.
+export async function getData912PriceOnDate(
+  assetType: Data912AssetType,
+  symbol: string,
+  isoDate: string,
+): Promise<number | null> {
+  const history = await getData912History(assetType, symbol, "all");
+  let found: number | null = null;
+  for (const row of history) {
+    if (row.date.slice(0, 10) <= isoDate) found = row.close;
+    else break;
+  }
+  return found;
+}

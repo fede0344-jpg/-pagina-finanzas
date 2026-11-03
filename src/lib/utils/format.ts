@@ -49,3 +49,23 @@ export function formatCompactARS(amount: number): string {
   if (abs >= 1_000) return `${Math.round(amount / 1_000)} mil`;
   return String(Math.round(amount));
 }
+
+const usdEsFormatter = new Intl.NumberFormat("es-AR", {
+  style: "currency",
+  currency: "USD",
+  currencyDisplay: "code",
+});
+
+// Dólares con formato argentino: "USD 1.234,50".
+export function formatUSD(amount: number): string {
+  return usdEsFormatter.format(amount);
+}
+
+// "+24,5%" / "-3,2%" para rendimientos.
+export function formatSignedPercent(percent: number): string {
+  const sign = percent > 0 ? "+" : "";
+  return `${sign}${percent.toLocaleString("es-AR", {
+    minimumFractionDigits: 1,
+    maximumFractionDigits: 1,
+  })}%`;
+}
