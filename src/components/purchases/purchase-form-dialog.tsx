@@ -15,6 +15,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
+import { cn } from "@/lib/utils";
 import {
   createPurchase,
   type PurchaseActionState,
@@ -53,9 +54,13 @@ export function PurchaseFormDialog({
   const [assetType, setAssetType] = useState<AssetType>("crypto");
   const [name, setName] = useState("");
   const [symbol, setSymbol] = useState("");
+  // "amount": cuánta plata pusiste. "quantity": cuánto del activo compraste.
+  const [mode, setMode] = useState<"amount" | "quantity">("amount");
 
   const activeType = ASSET_TYPES.find((t) => t.value === assetType)!;
   const currencyLabel = assetType === "crypto" ? "dólares (USD)" : "pesos (ARS)";
+  const currencyCode = assetType === "crypto" ? "USD" : "ARS";
+  const assetLabel = symbol.trim() ? symbol.trim().toUpperCase() : "Activo";
 
   useEffect(() => {
     if (wasPending.current && !isPending && !state) {
@@ -177,21 +182,64 @@ export function PurchaseFormDialog({
               />
             </div>
             <div className="flex flex-col gap-2">
-              <Label htmlFor="purchase-invested">
-                Monto invertido
-              </Label>
-              <Input
-                id="purchase-invested"
-                name="invested"
-                inputMode="decimal"
-                placeholder="ej: 1000 o 1.500,50"
-                required
-              />
+              <div className="flex items-center justify-between gap-2">
+                <Label htmlFor="purchase-amount">
+                  {mode === "amount" ? "Monto" : "Cantidad"}
+                </Label>
+                <div
+                  role="group"
+                  aria-label="Cargar por monto o por cantidad"
+                  className="inline-flex rounded-full bg-muted p-0.5"
+                >
+                  {(
+                    [
+                      { value: "amount", label: currencyCode },
+                      { value: "quantity", label: assetLabel },
+                    ] as const
+                  ).map((m) => (
+                    <button
+                      key={m.value}
+                      type="button"
+                      onClick={() => setMode(m.value)}
+                      aria-pressed={mode === m.value}
+                      className={cn(
+                        "max-w-24 truncate rounded-full px-2.5 py-1 text-[11px] font-bold transition-colors",
+                        mode === m.value
+                          ? "bg-ink text-on-ink"
+                          : "text-muted-foreground hover:text-foreground",
+                      )}
+                    >
+                      {m.label}
+                    </button>
+                  ))}
+                </div>
+              </div>
+              <input type="hidden" name="mode" value={mode} />
+              {mode === "amount" ? (
+                <Input
+                  key="amount"
+                  id="purchase-amount"
+                  name="invested"
+                  inputMode="decimal"
+                  placeholder="ej: 1000 o 1.500,50"
+                  required
+                />
+              ) : (
+                <Input
+                  key="quantity"
+                  id="purchase-amount"
+                  name="quantity"
+                  inputMode="decimal"
+                  placeholder="ej: 0,06 o 0.025"
+                  required
+                />
+              )}
             </div>
           </div>
           <p className="-mt-2 text-xs text-muted-foreground">
-            El monto va en {currencyLabel}, que es la moneda en la que cotiza
-            este tipo de activo.
+            {mode === "amount"
+              ? `El monto va en ${currencyLabel}, que es la moneda en la que cotiza este tipo de activo.`
+              : `Cuántas unidades de ${assetLabel === "Activo" ? "este activo" : assetLabel} compraste. Lo invertido se calcula con el precio de ese día.`}
           </p>
 
           <div className="flex flex-col gap-2">

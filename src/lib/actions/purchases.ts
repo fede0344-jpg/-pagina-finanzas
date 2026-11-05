@@ -5,11 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { purchaseSchema } from "@/lib/validation/purchase-schema";
 import { getAssetPriceOnDate } from "@/lib/market-data";
-import {
-  isKnownCryptoTicker,
-  normalizeCryptoSymbol,
-} from "@/lib/market-data/crypto-ids";
-import { getCoinGeckoQuote, searchCoinGeckoId } from "@/lib/market-data/coingecko";
+import { resolveSymbol } from "@/lib/market-data/resolve";
 
 export type PurchaseActionState = { error: string } | null;
 
@@ -21,33 +17,28 @@ export async function createPurchase(
   if (!user) return { error: "No autorizado." };
 
   const parsed = purchaseSchema.safeParse({
+    mode: formData.get("mode") ?? "amount",
     name: formData.get("name"),
     asset_type: formData.get("asset_type"),
     symbol: formData.get("symbol"),
     purchase_date: formData.get("purchase_date"),
-    invested: formData.get("invested"),
+    invested: formData.get("invested") ?? "",
+    quantity: formData.get("quantity") ?? "",
     buy_price: formData.get("buy_price") ?? "",
   });
   if (!parsed.success) {
     return { error: parsed.error.issues[0]?.message ?? "Datos inválidos." };
   }
 
-  const { buy_price: manualPrice, ...data } = parsed.data;
+  const input = parsed.data;
 
-  // En cripto guardamos el id de CoinGecko: acepta "BTC" o "bitcoin", y si es
-  // una moneda menos común la buscamos por nombre o ticker.
-  if (data.asset_type === "crypto") {
-    let id = normalizeCryptoSymbol(data.symbol);
-    if (!isKnownCryptoTicker(data.symbol) && !(await getCoinGeckoQuote(id))) {
-      id = (await searchCoinGeckoId(data.symbol)) ?? id;
-    }
-    data.symbol = id;
-  }
+  // En cripto guardamos el id de CoinGecko (acepta BTC o bitcoin).
+  const symbol = await resolveSymbol(input.asset_type, input.symbol);
   const buyPrice =
-    manualPrice ??
+    input.buy_price ??
     (await getAssetPriceOnDate(
-      { asset_type: data.asset_type, symbol: data.symbol },
-      data.purchase_date,
+      { asset_type: input.asset_type, symbol },
+      input.purchase_date,
     ));
 
   if (!buyPrice) {
@@ -57,13 +48,26 @@ export async function createPurchase(
     };
   }
 
-  // La cantidad queda guardada: así el rendimiento no cambia si después
-  // el historial de precios se corrige o deja de estar disponible.
-  const quantity = data.invested / buyPrice;
+  // Siempre guardamos las dos cosas: la cantidad y lo invertido. Así el
+  // rendimiento no cambia si después el historial de precios se corrige.
+  const quantity =
+    input.mode === "quantity" ? input.quantity : input.invested / buyPrice;
+  const invested =
+    input.mode === "quantity"
+      ? Math.round(input.quantity * buyPrice * 100) / 100
+      : input.invested;
+
+  if (invested <= 0) {
+    return { error: "La compra es demasiado chica para registrarla." };
+  }
 
   const supabase = await createClient();
   const { error } = await supabase.from("purchases").insert({
-    ...data,
+    name: input.name,
+    asset_type: input.asset_type,
+    symbol,
+    purchase_date: input.purchase_date,
+    invested,
     buy_price: buyPrice,
     quantity,
   });
