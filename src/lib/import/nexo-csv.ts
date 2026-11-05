@@ -1,6 +1,9 @@
 // Lector del CSV de transacciones de Nexo. Función pura (sin dependencias de
 // la app) para poder correrla en el navegador: el archivo no sale de la compu
 // hasta que la persona confirma la carga.
+//
+// Devuelve eventos con el id de la transacción de Nexo, así quien lo use puede
+// juntar varios archivos (incluso superpuestos) sin contar nada dos veces.
 
 export interface ImportedPurchase {
   ticker: string; // "BTC"
@@ -12,18 +15,30 @@ export interface ImportedPurchase {
   ref: string; // id de la transacción en Nexo
 }
 
+export interface BalanceEvent {
+  ref: string;
+  currency: string;
+  delta: number; // + entra a la cuenta, - sale
+}
+
+export interface SkippedEvent {
+  ref: string;
+  label: string; // tipo de operación, en castellano
+  interest?: { currency: string; amount: number };
+}
+
 export interface NexoParseResult {
   purchases: ImportedPurchase[];
-  // Operaciones que no son compras, contadas por tipo (en castellano).
-  skipped: Record<string, number>;
-  // Intereses ganados por moneda (no son compras: no tienen costo).
-  interest: Record<string, number>;
+  // Movimiento de cada moneda en la cuenta (solo operaciones aprobadas).
+  balance: BalanceEvent[];
+  // Operaciones que no son compras.
+  skipped: SkippedEvent[];
 }
 
 // Monedas atadas al dólar: cambiar una de estas por cripto es "comprar" cripto.
-const USD_STABLE = new Set(["USDT", "USDC", "DAI", "USDP", "TUSD", "PYUSD", "USD"]);
+export const USD_STABLE = new Set(["USDT", "USDC", "DAI", "USDP", "TUSD", "PYUSD", "USD"]);
 
-const NAMES: Record<string, string> = {
+export const CRYPTO_NAMES: Record<string, string> = {
   BTC: "Bitcoin",
   ETH: "Ethereum",
   SOL: "Solana",
@@ -36,6 +51,8 @@ const NAMES: Record<string, string> = {
   DOT: "Polkadot",
   LINK: "Chainlink",
   AVAX: "Avalanche",
+  USDT: "Tether",
+  USDC: "USD Coin",
 };
 
 const SKIP_LABELS: Record<string, string> = {
@@ -100,33 +117,51 @@ export function parseNexoCsv(text: string): NexoParseResult {
   const iInAmt = col("Input Amount");
   const iOutCur = col("Output Currency");
   const iOutAmt = col("Output Amount");
+  const iDetails = col("Details");
   const iDate = col("Date / Time (UTC)");
 
   if ([iType, iInCur, iInAmt, iOutCur, iOutAmt, iDate].some((i) => i < 0)) {
     throw new Error("No parece un archivo de transacciones de Nexo.");
   }
 
-  const result: NexoParseResult = { purchases: [], skipped: {}, interest: {} };
-  const skip = (label: string) => {
-    result.skipped[label] = (result.skipped[label] ?? 0) + 1;
-  };
+  const result: NexoParseResult = { purchases: [], balance: [], skipped: [] };
 
-  for (const r of rows.slice(1)) {
+  rows.slice(1).forEach((r, n) => {
+    const ref = r[iRef]?.trim() || `fila-${n}`;
     const type = r[iType]?.trim();
     const inCur = r[iInCur]?.trim().toUpperCase();
     const outCur = r[iOutCur]?.trim().toUpperCase();
     const inAmt = Number(r[iInAmt]);
     const outAmt = Number(r[iOutAmt]);
+    const details = (iDetails >= 0 ? r[iDetails] : "")?.trim().toLowerCase() ?? "";
+
+    // Retiros rechazados o pendientes: no movieron plata.
+    if (details && !details.startsWith("approved")) {
+      result.skipped.push({ ref, label: "Operaciones rechazadas o pendientes" });
+      return;
+    }
+
+    if (type === "Exchange") {
+      result.balance.push({ ref: `${ref}:in`, currency: inCur, delta: -Math.abs(inAmt) });
+      result.balance.push({ ref: `${ref}:out`, currency: outCur, delta: outAmt });
+    } else if (type === "Withdrawal") {
+      result.balance.push({ ref, currency: inCur, delta: -Math.abs(inAmt) });
+    } else {
+      result.balance.push({ ref, currency: outCur, delta: outAmt });
+    }
 
     if (type === "Interest") {
-      result.interest[outCur] = (result.interest[outCur] ?? 0) + outAmt;
-      skip(SKIP_LABELS.Interest);
-      continue;
+      result.skipped.push({
+        ref,
+        label: SKIP_LABELS.Interest,
+        interest: { currency: outCur, amount: outAmt },
+      });
+      return;
     }
 
     if (type !== "Exchange") {
-      skip(SKIP_LABELS[type] ?? type);
-      continue;
+      result.skipped.push({ ref, label: SKIP_LABELS[type] ?? type });
+      return;
     }
 
     const date = argentinaDate(r[iDate]);
@@ -139,20 +174,38 @@ export function parseNexoCsv(text: string): NexoParseResult {
       date !== null;
 
     if (!isBuy) {
-      skip("Intercambios que no son compras con dólares");
-      continue;
+      result.skipped.push({
+        ref,
+        label: "Intercambios que no son compras con dólares",
+      });
+      return;
     }
 
     result.purchases.push({
       ticker: outCur,
-      name: NAMES[outCur] ?? outCur,
+      name: CRYPTO_NAMES[outCur] ?? outCur,
       date,
       invested,
       quantity: outAmt,
       price: invested / outAmt,
-      ref: r[iRef]?.trim() ?? "",
+      ref,
     });
-  }
+  });
 
   return result;
+}
+
+/** Suma los movimientos (sin repetir transacciones) y devuelve lo que queda por moneda. */
+export function netHoldings(events: BalanceEvent[]): Record<string, number> {
+  const seen = new Set<string>();
+  const totals: Record<string, number> = {};
+  for (const e of events) {
+    if (seen.has(e.ref)) continue;
+    seen.add(e.ref);
+    totals[e.currency] = (totals[e.currency] ?? 0) + e.delta;
+  }
+  for (const k of Object.keys(totals)) {
+    totals[k] = Math.round(totals[k] * 1e8) / 1e8;
+  }
+  return totals;
 }
