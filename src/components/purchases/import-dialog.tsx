@@ -19,11 +19,14 @@ import { importPurchases } from "@/lib/actions/import-purchases";
 import { importHoldings } from "@/lib/actions/import-holdings";
 import {
   CRYPTO_NAMES,
+  depositPurchases,
   USD_STABLE,
   monthlyInterest,
   netHoldings,
   parseNexoCsv,
   type BalanceEvent,
+  type DepositPurchase,
+  type TransferEvent,
   type ImportedPurchase,
   type MonthlyInterest,
   type SkippedEvent,
@@ -59,6 +62,8 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
   const [holdings, setHoldings] = useState<Holding[]>([]);
   const [interestRows, setInterestRows] = useState<MonthlyInterest[]>([]);
   const [interestMessage, setInterestMessage] = useState<Message>(null);
+  const [depositRows, setDepositRows] = useState<DepositPurchase[]>([]);
+  const [depositMessage, setDepositMessage] = useState<Message>(null);
   const [message, setMessage] = useState<Message>(null);
   const [holdingsMessage, setHoldingsMessage] = useState<Message>(null);
   const [isPending, startTransition] = useTransition();
@@ -69,9 +74,11 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
     setSkipped([]);
     setHoldings([]);
     setInterestRows([]);
+    setDepositRows([]);
     setMessage(null);
     setHoldingsMessage(null);
     setInterestMessage(null);
+    setDepositMessage(null);
   }
 
   async function onFiles(files: FileList | null) {
@@ -82,12 +89,14 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
     const seen = new Set<string>();
     const skippedAll: SkippedEvent[] = [];
     const balanceAll: BalanceEvent[] = [];
+    const transfersAll: TransferEvent[] = [];
 
     try {
       for (const file of Array.from(files)) {
         const result = parseNexoCsv(await file.text());
         skippedAll.push(...result.skipped);
         balanceAll.push(...result.balance);
+        transfersAll.push(...result.transfers);
         for (const p of result.purchases) {
           if (seen.has(p.ref)) continue; // misma transacción en dos archivos
           seen.add(p.ref);
@@ -115,6 +124,8 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
     setRows(all);
     setSelected(new Set(all.filter((r) => !r.duplicate).map((r) => r.key)));
     setSkipped(skippedAll);
+
+    setDepositRows(depositPurchases(transfersAll));
 
     // Intereses por mes (el mes en curso, en hora argentina, queda afuera).
     const currentMonth = new Date(Date.now() - 3 * 3_600_000)
@@ -170,6 +181,21 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
       setMessage({
         ok:
           `Se cargaron ${result.inserted} ${result.inserted === 1 ? "compra" : "compras"}.` +
+          (result.skipped > 0 ? ` ${result.skipped} ya estaban.` : ""),
+      });
+    });
+  }
+
+  function confirmDeposits() {
+    startTransition(async () => {
+      const result = await importPurchases(depositRows);
+      if ("error" in result) {
+        setDepositMessage({ error: result.error });
+        return;
+      }
+      setDepositMessage({
+        ok:
+          `Se cargaron ${result.inserted} depósitos como compras.` +
           (result.skipped > 0 ? ` ${result.skipped} ya estaban.` : ""),
       });
     });
@@ -321,6 +347,52 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
               {isPending
                 ? "Cargando..."
                 : `Cargar ${chosenCount} ${chosenCount === 1 ? "compra" : "compras"} (${formatUSD(totalInvested)})`}
+            </Button>
+          </div>
+        ) : null}
+
+        {depositRows.length > 0 ? (
+          <div className="flex flex-col gap-3 rounded-2xl bg-muted p-4">
+            <p className="text-sm">
+              <strong>Depósitos de cripto:</strong> {depositRows.length}{" "}
+              entradas, valuadas al precio del día que depositaste (no sabemos
+              cuánto costaron antes). Los retiros ya están descontados.
+            </p>
+            <ul className="flex flex-col gap-1 font-mono text-sm">
+              {depositRows.map((d) => (
+                <li
+                  key={`${d.ticker}-${d.date}`}
+                  className="flex justify-between gap-3"
+                >
+                  <span>
+                    {formatDate(d.date)} · {d.name}
+                  </span>
+                  <span className="font-bold">
+                    <Money>
+                      {formatQuantity(d.quantity)} {d.ticker} ·{" "}
+                      {formatUSD(d.invested)}
+                    </Money>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            {depositMessage?.error ? (
+              <p role="alert" className="text-sm text-negative">
+                {depositMessage.error}
+              </p>
+            ) : null}
+            {depositMessage?.ok ? (
+              <p role="status" className="text-sm font-semibold text-positive">
+                {depositMessage.ok}
+              </p>
+            ) : null}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={confirmDeposits}
+              disabled={isPending}
+            >
+              {isPending ? "Cargando..." : "Cargar depósitos como compras"}
             </Button>
           </div>
         ) : null}

@@ -27,8 +27,19 @@ export interface SkippedEvent {
   interest?: { currency: string; amount: number; usd: number; date: string };
 }
 
+export interface TransferEvent {
+  ref: string;
+  kind: "deposit" | "withdrawal";
+  currency: string;
+  quantity: number;
+  usd: number; // valor en dólares el día del movimiento
+  date: string; // hora de Argentina
+}
+
 export interface NexoParseResult {
   purchases: ImportedPurchase[];
+  // Depósitos y retiros de cripto (sin los dólares/stablecoins).
+  transfers: TransferEvent[];
   // Movimiento de cada moneda en la cuenta (solo operaciones aprobadas).
   balance: BalanceEvent[];
   // Operaciones que no son compras.
@@ -125,7 +136,12 @@ export function parseNexoCsv(text: string): NexoParseResult {
     throw new Error("No parece un archivo de transacciones de Nexo.");
   }
 
-  const result: NexoParseResult = { purchases: [], balance: [], skipped: [] };
+  const result: NexoParseResult = {
+    purchases: [],
+    transfers: [],
+    balance: [],
+    skipped: [],
+  };
 
   rows.slice(1).forEach((r, n) => {
     const ref = r[iRef]?.trim() || `fila-${n}`;
@@ -164,6 +180,23 @@ export function parseNexoCsv(text: string): NexoParseResult {
             : undefined,
       });
       return;
+    }
+
+    if (type === "Top up Crypto" || type === "Withdrawal") {
+      const currency = type === "Withdrawal" ? inCur : outCur;
+      const quantity = Math.abs(type === "Withdrawal" ? inAmt : outAmt);
+      const usd = Number(String(iUsd >= 0 ? r[iUsd] : "").replace(/[^0-9.]/g, ""));
+      const date = argentinaDate(r[iDate]);
+      if (!USD_STABLE.has(currency) && quantity > 0 && usd > 0 && date) {
+        result.transfers.push({
+          ref,
+          kind: type === "Withdrawal" ? "withdrawal" : "deposit",
+          currency,
+          quantity,
+          usd,
+          date,
+        });
+      }
     }
 
     if (type !== "Exchange") {
@@ -265,5 +298,71 @@ export function monthlyInterest(
   return [...groups.values()]
     .map((g) => ({ ...g, invested: Math.round(g.invested * 100) / 100 }))
     .filter((g) => g.invested > 0)
+    .sort((a, b) => b.date.localeCompare(a.date));
+}
+
+export interface DepositPurchase {
+  ticker: string;
+  name: string;
+  date: string;
+  invested: number;
+  quantity: number;
+}
+
+/**
+ * Convierte los depósitos de cripto en "compras" valuadas al día del depósito
+ * (no sabemos cuánto costaron originalmente). Los retiros se descuentan de los
+ * depósitos más recientes que ya hubieran llegado, así lo que queda coincide
+ * con lo que hay en la cuenta. Cada depósito conserva su precio.
+ */
+export function depositPurchases(transfers: TransferEvent[]): DepositPurchase[] {
+  const seen = new Set<string>();
+  const unique = transfers.filter((t) => {
+    if (seen.has(t.ref)) return false;
+    seen.add(t.ref);
+    return true;
+  });
+
+  const lots: (DepositPurchase & { price: number })[] = [];
+  // Mismo día: primero los depósitos, después los retiros.
+  const sorted = [...unique].sort(
+    (a, b) =>
+      a.date.localeCompare(b.date) || (a.kind === "deposit" ? -1 : 1),
+  );
+
+  for (const t of sorted) {
+    if (t.kind === "deposit") {
+      lots.push({
+        ticker: t.currency,
+        name: CRYPTO_NAMES[t.currency] ?? t.currency,
+        date: t.date,
+        invested: t.usd,
+        quantity: t.quantity,
+        price: t.usd / t.quantity,
+      });
+      continue;
+    }
+    // Retiro: descuenta de los depósitos de esa moneda (más nuevos primero).
+    // Si es el mismo día, el depósito cuenta como ya llegado.
+    let left = t.quantity;
+    for (let i = lots.length - 1; i >= 0 && left > 1e-12; i--) {
+      const lot = lots[i];
+      if (lot.ticker !== t.currency) continue;
+      const take = Math.min(lot.quantity, left);
+      lot.quantity -= take;
+      lot.invested = lot.quantity * lot.price;
+      left -= take;
+    }
+  }
+
+  return lots
+    .filter((l) => l.quantity > 1e-9)
+    .map(({ ticker, name, date, invested, quantity }) => ({
+      ticker,
+      name,
+      date,
+      invested: Math.round(invested * 100) / 100,
+      quantity,
+    }))
     .sort((a, b) => b.date.localeCompare(a.date));
 }
