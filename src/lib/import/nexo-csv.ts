@@ -24,7 +24,7 @@ export interface BalanceEvent {
 export interface SkippedEvent {
   ref: string;
   label: string; // tipo de operación, en castellano
-  interest?: { currency: string; amount: number };
+  interest?: { currency: string; amount: number; usd: number; date: string };
 }
 
 export interface NexoParseResult {
@@ -117,6 +117,7 @@ export function parseNexoCsv(text: string): NexoParseResult {
   const iInAmt = col("Input Amount");
   const iOutCur = col("Output Currency");
   const iOutAmt = col("Output Amount");
+  const iUsd = col("USD Equivalent");
   const iDetails = col("Details");
   const iDate = col("Date / Time (UTC)");
 
@@ -151,10 +152,16 @@ export function parseNexoCsv(text: string): NexoParseResult {
     }
 
     if (type === "Interest") {
+      // Valor en dólares del día que se cobró (columna "USD Equivalent": "$1.05").
+      const usd = Number(String(iUsd >= 0 ? r[iUsd] : "").replace(/[^0-9.]/g, ""));
+      const date = argentinaDate(r[iDate]);
       result.skipped.push({
         ref,
         label: SKIP_LABELS.Interest,
-        interest: { currency: outCur, amount: outAmt },
+        interest:
+          date && usd > 0 && outAmt > 0
+            ? { currency: outCur, amount: outAmt, usd, date }
+            : undefined,
       });
       return;
     }
@@ -208,4 +215,55 @@ export function netHoldings(events: BalanceEvent[]): Record<string, number> {
     totals[k] = Math.round(totals[k] * 1e8) / 1e8;
   }
   return totals;
+}
+
+export interface MonthlyInterest {
+  ticker: string;
+  name: string;
+  date: string; // último cobro del mes
+  invested: number; // USD que valían los intereses cuando se cobraron
+  quantity: number;
+  payouts: number; // cantidad de pagos que se juntaron
+}
+
+/**
+ * Junta los intereses por mes y por activo (con cientos de pagos diarios, una
+ * fila por pago llenaría la lista). Los dólares y el mes en curso quedan
+ * afuera: los primeros no son una inversión con precio, y el mes en curso se
+ * suma cuando termina para no cargarlo a medias.
+ */
+export function monthlyInterest(
+  events: SkippedEvent[],
+  currentMonth: string, // "2026-11"
+): MonthlyInterest[] {
+  const seen = new Set<string>();
+  const groups = new Map<string, MonthlyInterest>();
+
+  for (const e of events) {
+    if (!e.interest || seen.has(e.ref)) continue;
+    seen.add(e.ref);
+    const { currency, amount, usd, date } = e.interest;
+    const month = date.slice(0, 7);
+    if (USD_STABLE.has(currency) || month >= currentMonth) continue;
+
+    const key = `${currency}|${month}`;
+    const g = groups.get(key) ?? {
+      ticker: currency,
+      name: CRYPTO_NAMES[currency] ?? currency,
+      date,
+      invested: 0,
+      quantity: 0,
+      payouts: 0,
+    };
+    g.invested += usd;
+    g.quantity += amount;
+    g.payouts += 1;
+    if (date > g.date) g.date = date;
+    groups.set(key, g);
+  }
+
+  return [...groups.values()]
+    .map((g) => ({ ...g, invested: Math.round(g.invested * 100) / 100 }))
+    .filter((g) => g.invested > 0)
+    .sort((a, b) => b.date.localeCompare(a.date));
 }

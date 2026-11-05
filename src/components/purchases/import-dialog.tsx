@@ -20,10 +20,12 @@ import { importHoldings } from "@/lib/actions/import-holdings";
 import {
   CRYPTO_NAMES,
   USD_STABLE,
+  monthlyInterest,
   netHoldings,
   parseNexoCsv,
   type BalanceEvent,
   type ImportedPurchase,
+  type MonthlyInterest,
   type SkippedEvent,
 } from "@/lib/import/nexo-csv";
 import { normalizeCryptoSymbol } from "@/lib/market-data/crypto-ids";
@@ -55,6 +57,8 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
   const [selected, setSelected] = useState<Set<string>>(new Set());
   const [skipped, setSkipped] = useState<SkippedEvent[]>([]);
   const [holdings, setHoldings] = useState<Holding[]>([]);
+  const [interestRows, setInterestRows] = useState<MonthlyInterest[]>([]);
+  const [interestMessage, setInterestMessage] = useState<Message>(null);
   const [message, setMessage] = useState<Message>(null);
   const [holdingsMessage, setHoldingsMessage] = useState<Message>(null);
   const [isPending, startTransition] = useTransition();
@@ -64,8 +68,10 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
     setSelected(new Set());
     setSkipped([]);
     setHoldings([]);
+    setInterestRows([]);
     setMessage(null);
     setHoldingsMessage(null);
+    setInterestMessage(null);
   }
 
   async function onFiles(files: FileList | null) {
@@ -109,6 +115,12 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
     setRows(all);
     setSelected(new Set(all.filter((r) => !r.duplicate).map((r) => r.key)));
     setSkipped(skippedAll);
+
+    // Intereses por mes (el mes en curso, en hora argentina, queda afuera).
+    const currentMonth = new Date(Date.now() - 3 * 3_600_000)
+      .toISOString()
+      .slice(0, 7);
+    setInterestRows(monthlyInterest(skippedAll, currentMonth));
 
     // Tenencias: lo que queda en la cuenta, sin dólares (esos son efectivo).
     const net = netHoldings(balanceAll);
@@ -158,6 +170,29 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
       setMessage({
         ok:
           `Se cargaron ${result.inserted} ${result.inserted === 1 ? "compra" : "compras"}.` +
+          (result.skipped > 0 ? ` ${result.skipped} ya estaban.` : ""),
+      });
+    });
+  }
+
+  function confirmInterest() {
+    startTransition(async () => {
+      const result = await importPurchases(
+        interestRows.map(({ ticker, name, date, invested, quantity }) => ({
+          ticker,
+          name,
+          date,
+          invested,
+          quantity,
+        })),
+      );
+      if ("error" in result) {
+        setInterestMessage({ error: result.error });
+        return;
+      }
+      setInterestMessage({
+        ok:
+          `Se cargaron ${result.inserted} compras de intereses.` +
           (result.skipped > 0 ? ` ${result.skipped} ya estaban.` : ""),
       });
     });
@@ -286,6 +321,61 @@ export function ImportDialog({ existing }: { existing: ExistingPurchase[] }) {
               {isPending
                 ? "Cargando..."
                 : `Cargar ${chosenCount} ${chosenCount === 1 ? "compra" : "compras"} (${formatUSD(totalInvested)})`}
+            </Button>
+          </div>
+        ) : null}
+
+        {interestRows.length > 0 ? (
+          <div className="flex flex-col gap-3 rounded-2xl bg-muted p-4">
+            <p className="text-sm">
+              <strong>Intereses ganados:</strong> {interestRows.length} cargas
+              mensuales, una por activo y mes, valuadas al precio en dólares
+              del día que cobraste:
+            </p>
+            <ul className="flex flex-col gap-1 font-mono text-sm">
+              {Object.entries(
+                interestRows.reduce<Record<string, { q: number; usd: number }>>(
+                  (acc, r) => {
+                    const a = (acc[r.ticker] ??= { q: 0, usd: 0 });
+                    a.q += r.quantity;
+                    a.usd += r.invested;
+                    return acc;
+                  },
+                  {},
+                ),
+              ).map(([ticker, t]) => (
+                <li key={ticker} className="flex justify-between gap-3">
+                  <span>{CRYPTO_NAMES[ticker] ?? ticker}</span>
+                  <span className="font-bold">
+                    <Money>
+                      {formatQuantity(t.q)} {ticker} · {formatUSD(t.usd)}
+                    </Money>
+                  </span>
+                </li>
+              ))}
+            </ul>
+            <p className="text-xs text-muted-foreground">
+              No incluye el mes en curso (se suma cuando termine) ni los
+              intereses en dólares (USDT/USDC), que no tienen precio de
+              compra.
+            </p>
+            {interestMessage?.error ? (
+              <p role="alert" className="text-sm text-negative">
+                {interestMessage.error}
+              </p>
+            ) : null}
+            {interestMessage?.ok ? (
+              <p role="status" className="text-sm font-semibold text-positive">
+                {interestMessage.ok}
+              </p>
+            ) : null}
+            <Button
+              type="button"
+              variant="secondary"
+              onClick={confirmInterest}
+              disabled={isPending}
+            >
+              {isPending ? "Cargando..." : "Cargar intereses como compras"}
             </Button>
           </div>
         ) : null}
