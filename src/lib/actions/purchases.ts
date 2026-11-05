@@ -5,11 +5,7 @@ import { createClient } from "@/lib/supabase/server";
 import { getCurrentUser } from "@/lib/supabase/auth";
 import { purchaseSchema } from "@/lib/validation/purchase-schema";
 import { getAssetPriceOnDate } from "@/lib/market-data";
-import {
-  isKnownCryptoTicker,
-  normalizeCryptoSymbol,
-} from "@/lib/market-data/crypto-ids";
-import { getCoinGeckoQuote, searchCoinGeckoId } from "@/lib/market-data/coingecko";
+import { resolveSymbol } from "@/lib/market-data/resolve";
 
 export type PurchaseActionState = { error: string } | null;
 
@@ -34,15 +30,8 @@ export async function createPurchase(
 
   const { buy_price: manualPrice, ...data } = parsed.data;
 
-  // En cripto guardamos el id de CoinGecko: acepta "BTC" o "bitcoin", y si es
-  // una moneda menos común la buscamos por nombre o ticker.
-  if (data.asset_type === "crypto") {
-    let id = normalizeCryptoSymbol(data.symbol);
-    if (!isKnownCryptoTicker(data.symbol) && !(await getCoinGeckoQuote(id))) {
-      id = (await searchCoinGeckoId(data.symbol)) ?? id;
-    }
-    data.symbol = id;
-  }
+  // En cripto guardamos el id de CoinGecko (acepta BTC o bitcoin).
+  data.symbol = await resolveSymbol(data.asset_type, data.symbol);
   const buyPrice =
     manualPrice ??
     (await getAssetPriceOnDate(
