@@ -9,9 +9,11 @@ import { PositionFormDialog } from "./position-form-dialog";
 import { DeletePositionButton } from "./delete-position-button";
 import {
   buildPortfolio,
+  describeSlice,
   formatMoney,
   formatPercent,
   needsUsdRate,
+  type PositionPrices,
 } from "@/lib/portfolio/aggregate";
 import { cn } from "@/lib/utils";
 import type { PortfolioCurrency } from "@/lib/types/database.types";
@@ -25,17 +27,19 @@ const CURRENCY_OPTIONS: { value: PortfolioCurrency; label: string }[] = [
 export function PortfolioView({
   positions,
   usdRate,
+  prices,
 }: {
   positions: PortfolioPosition[];
   usdRate: number | null;
+  prices: PositionPrices;
 }) {
   const [currency, setCurrency] = useState<PortfolioCurrency>("USD");
   const [hovered, setHovered] = useState<string | null>(null);
 
   const missingRate = needsUsdRate(positions) && !usdRate;
   const { slices, total } = useMemo(
-    () => buildPortfolio(positions, currency, usdRate),
-    [positions, currency, usdRate],
+    () => buildPortfolio(positions, currency, usdRate, prices),
+    [positions, currency, usdRate, prices],
   );
 
   if (positions.length === 0) {
@@ -119,15 +123,7 @@ export function PortfolioView({
                       {slice.position.name}
                     </p>
                     <p className="font-mono text-xs text-muted-foreground tabular-nums">
-                      <Money>
-                        {formatMoney(
-                          slice.position.amount,
-                          slice.position.currency,
-                        )}
-                        {slice.position.currency !== currency
-                          ? ` ≈ ${formatMoney(slice.value, currency)}`
-                          : null}
-                      </Money>
+                      <Money>{describeSlice(slice, currency)}</Money>
                     </p>
                   </div>
                   <span className="display num w-20 text-right text-xl">
@@ -150,13 +146,14 @@ export function PortfolioView({
       {usdRate && needsUsdRate(positions) ? (
         <p className="text-xs text-muted-foreground">
           Para sumar pesos y dólares usamos el dólar MEP de hoy (
-          {formatMoney(usdRate, "ARS")}). Los montos son los que cargaste vos,
-          no se actualizan con el precio de mercado.
+          {formatMoney(usdRate, "ARS")}). Los montos en pesos o dólares quedan
+          fijos; los activos cargados por cantidad se actualizan con el precio
+          de mercado.
         </p>
       ) : (
         <p className="text-xs text-muted-foreground">
-          Los montos son los que cargaste vos, no se actualizan con el precio
-          de mercado.
+          Los montos en pesos o dólares quedan fijos; los activos cargados por
+          cantidad se actualizan con el precio de mercado.
         </p>
       )}
     </div>
