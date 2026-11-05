@@ -8,6 +8,7 @@ import { PageHeader } from "@/components/layout/page-header";
 import { InvestmentsTabs } from "@/components/investments/investments-tabs";
 import { PurchasesView } from "@/components/purchases/purchases-view";
 import { PurchaseFormDialog } from "@/components/purchases/purchase-form-dialog";
+import { ImportDialog } from "@/components/purchases/import-dialog";
 
 export const metadata = { title: "Mis compras" };
 
@@ -45,7 +46,20 @@ export default async function ComprasPage() {
       <PageHeader
         title="Mis compras"
         description="Anotá lo que comprás y mirá cuánto ganás o perdés con el precio de hoy."
-        action={<PurchaseFormDialog assets={assets ?? []} />}
+        action={
+          <div className="flex flex-wrap gap-2">
+            <ImportDialog
+              existing={list
+                .filter((p) => p.asset_type === "crypto")
+                .map((p) => ({
+                  symbol: p.symbol,
+                  date: p.purchase_date,
+                  invested: p.invested,
+                }))}
+            />
+            <PurchaseFormDialog assets={assets ?? []} />
+          </div>
+        }
       />
       <InvestmentsTabs active="/inversiones/compras" />
       <PurchasesView
